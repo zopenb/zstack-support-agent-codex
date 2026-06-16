@@ -1,0 +1,31 @@
+interface:
+  display_name: "ZStack 事件分析"
+  short_description: "按需调用 ZStack 支持查证工具完成事件分析"
+  brand_color: "#2563EB"
+  default_prompt: "粘贴客户反馈、错误日志或截图转写，按需进行证据优先分析。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP，只读查询 zstackio/zstack、zstackio/zstack-utility 等公开源码、commit、tag 和 release branch；修复版本/回合确认必须使用"
+      transport: "streamable_http"
+      url: "https://api.githubcopilot.com/mcp/"
+    - type: "mcp"
+      value: "zstack-bbs"
+      description: "ZStack知识社区(BBS) MCP，只读查询历史案例和相似问题"
+      transport: "streamable_http"
+      url: "https://mcp.zopen.top:16666/mcp"
+    - type: "mcp"
+      value: "tavily_hikari"
+      description: "Tavily MCP，只读搜索 Linux、Windows、Red Hat、Ceph、QEMU/KVM、libvirt 等外部生态资料"
+      transport: "streamable_http"
+      url: "https://tavily.zopen1.com/mcp"
+    - type: "mcp"
+      value: "zstack_atlassian_shared"
+      description: "只读共享 Atlassian MCP，用于 Jira 已知问题/需求状态和 Confluence 内部文档参考"
+      transport: "streamable_http"
+      url: "http://172.18.250.27:3340/mcp"
+
+policy:
+  allow_implicit_invocation: true
