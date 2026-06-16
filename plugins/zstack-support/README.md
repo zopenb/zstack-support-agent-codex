@@ -39,6 +39,93 @@ ZStack Support Agent（源码级分析），基于证据优先方法论，结合
 
 本套件通过 MCP 连接器对接 GitHub、ZStack知识社区(BBS)、Tavily 和 Atlassian，实现源码查证、历史参考、外部 Web/厂商论坛参考和内部只读工单/文档参考的自动化分析。当前分发包默认通过 Windows 环境变量注入凭据。
 
+### 需要配置的环境变量
+
+```text
+GITHUB_MCP_TOKEN
+ZSTACK_BBS_AUTHORIZATION
+TAVILY_HIKARI_TOKEN
+ATLASSIAN_BASIC_AUTH
+```
+
+`ATLASSIAN_AUTHORIZATION` 不需要手动配置。运行 `scripts\install.ps1` 后，会从 `ATLASSIAN_BASIC_AUTH` 自动派生。
+
+### 每个凭据怎么获取
+
+| 环境变量 | 获取方式 | 填写格式 |
+|----------|----------|----------|
+| `GITHUB_MCP_TOKEN` | 在 GitHub 个人设置中创建 Personal Access Token：**Settings → Developer settings → Personal access tokens**。优先使用 fine-grained token；用于公开 ZStack 源码查证时，只需只读仓库元数据和内容权限。如果团队有 GitHub/Copilot MCP 统一要求，以管理员要求为准。 | 原始 token，例如 `github_pat_...` |
+| `ZSTACK_BBS_AUTHORIZATION` | 向团队获取 ZStack知识社区(BBS) 账号。将 `username:password` 转成 base64，再加 `Basic ` 前缀。 | `Basic <base64(username:password)>` |
+| `TAVILY_HIKARI_TOKEN` | 向 Tavily Hikari MCP 网关维护者获取。当前插件连接的是团队网关 `https://tavily.zopen1.com/mcp`，不要默认把公网 Tavily token 当成可用值。 | 原始 token |
+| `ATLASSIAN_BASIC_AUTH` | 使用 Jira/Confluence 账号，服务地址为 `http://jira.zstack.io` 和 `http://confluence.zstack.io`。将 `username:password` 转成 base64。 | `<base64(username:password)>`，不要带 `Basic ` 前缀 |
+
+### Basic Auth 怎么编码
+
+在 PowerShell 中执行：
+
+```powershell
+$pair = 'username:password'
+$base64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($pair))
+$base64
+```
+
+然后这样使用：
+
+```text
+ZSTACK_BBS_AUTHORIZATION=Basic <base64>
+ATLASSIAN_BASIC_AUTH=<base64>
+```
+
+Atlassian 特别注意：`ATLASSIAN_BASIC_AUTH` 只填 base64，不填 `Basic `。安装脚本会自动生成运行时变量 `ATLASSIAN_AUTHORIZATION=Basic <base64>`。
+
+### Windows 怎么录入
+
+PowerShell 用户变量方式：
+
+```powershell
+[Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', '<github-token>', 'User')
+[Environment]::SetEnvironmentVariable('ZSTACK_BBS_AUTHORIZATION', 'Basic <bbs-base64>', 'User')
+[Environment]::SetEnvironmentVariable('TAVILY_HIKARI_TOKEN', '<tavily-token>', 'User')
+[Environment]::SetEnvironmentVariable('ATLASSIAN_BASIC_AUTH', '<atlassian-base64>', 'User')
+```
+
+Windows 图形界面方式：
+
+1. 打开开始菜单。
+2. 搜索“编辑账户的环境变量”。
+3. 点击“环境变量”。
+4. 在“用户变量”中新增上面四个变量。
+5. 保存后重启 Codex 或打开新线程。
+
+录入后，从 marketplace 仓库根目录运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\install.ps1
+```
+
+### 不打印密钥的检查方式
+
+```powershell
+$names = @(
+  'GITHUB_MCP_TOKEN',
+  'ZSTACK_BBS_AUTHORIZATION',
+  'TAVILY_HIKARI_TOKEN',
+  'ATLASSIAN_BASIC_AUTH',
+  'ATLASSIAN_AUTHORIZATION'
+)
+
+foreach ($name in $names) {
+  [pscustomobject]@{
+    Name = $name
+    Present = [bool](
+      [Environment]::GetEnvironmentVariable($name, 'User') -or
+      [Environment]::GetEnvironmentVariable($name, 'Machine') -or
+      [Environment]::GetEnvironmentVariable($name, 'Process')
+    )
+  }
+} | Format-Table -AutoSize
+```
+
 ### GitHub 连接器
 
 使用 GitHub 官方远程 MCP 服务器：
