@@ -1,0 +1,31 @@
+interface:
+  display_name: "ZStack MCP 连通检查"
+  short_description: "检查插件声明的 MCP 工具是否可见和可查询"
+  brand_color: "#2563EB"
+  default_prompt: "检查 GitHub、BBS、Tavily、Jira 和 Confluence MCP 连通性。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP，只读查询 zstackio/zstack 仓库和文件"
+      transport: "streamable_http"
+      url: "https://api.githubcopilot.com/mcp/"
+    - type: "mcp"
+      value: "zstack-bbs"
+      description: "ZStack知识社区(BBS) MCP，只读查询历史主题"
+      transport: "streamable_http"
+      url: "https://mcp.zopen.top:16666/mcp"
+    - type: "mcp"
+      value: "tavily_hikari"
+      description: "Tavily MCP，只读搜索公开 Web 资料"
+      transport: "streamable_http"
+      url: "https://tavily.zopen1.com/mcp"
+    - type: "mcp"
+      value: "zstack_atlassian_shared"
+      description: "只读共享 Atlassian MCP，用于检查 Jira/Confluence 查询工具是否注入"
+      transport: "streamable_http"
+      url: "http://172.18.250.27:3340/mcp"
+
+policy:
+  allow_implicit_invocation: true
