@@ -1,0 +1,26 @@
+interface:
+  display_name: "ZStack 源码查证"
+  short_description: "只读查询 ZStack 公开源码并解释机制"
+  brand_color: "#2563EB"
+  default_prompt: "输入类名、API、配置键、错误文本或日志关键词，查询源码机制。"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "github"
+      description: "GitHub MCP，只读查询 zstackio/zstack、zstackio/zstack-utility 等公开源码"
+      transport: "streamable_http"
+      url: "https://api.githubcopilot.com/mcp/"
+    - type: "mcp"
+      value: "zstack-bbs"
+      description: "ZStack知识社区(BBS) MCP，仅在源码边界需要历史案例补充时只读查询"
+      transport: "streamable_http"
+      url: "https://mcp.zopen.top:16666/mcp"
+    - type: "mcp"
+      value: "tavily_hikari"
+      description: "Tavily MCP，仅在源码问题涉及外部生态时只读搜索"
+      transport: "streamable_http"
+      url: "https://tavily.zopen1.com/mcp"
+
+policy:
+  allow_implicit_invocation: true
