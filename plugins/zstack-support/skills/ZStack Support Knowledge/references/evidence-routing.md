@@ -13,9 +13,9 @@
 | 轻量证据答复 | 用户问具体报错能否忽略、是否预期、兼容性边界、客户口径、是否影响功能；已有错误文本或截图可形成搜索词 | 简洁回答，但 ZStack 具体问题至少查 2 个关键来源；客户口径类优先 BBS/Jira，机制类优先 GitHub |
 | 最小补充信息 | 缺少版本、错误文本、对象类型、操作路径；无法形成有效搜索词 | 先问最小必要信息 |
 | 单点求证 | 用户只问源码、历史案例、官方文档或外部生态资料中的一个方向 | 只查对应来源 |
-| 多方并行查证 | 升级后异常、迁移、存储、网络、HA、数据风险、正式根因分析、需要多来源互相印证 | 并行查可用来源 |
+| 多方并行查证 | 升级后异常、迁移、存储、网络、HA、数据风险、正式根因分析、需要多来源互相印证 | 默认尝试 subagent 并发查证；无 subagent 工具时才由主 agent 并行/串行调用可用来源 |
 | 修复版本/回合确认 | 用户问哪个版本修复、是否合入某个版本线、是否回合到 4.x/5.x、fixVersion 是否真实发布、某版本是否包含某修复 | 必须同时查 Jira/Confluence 与 GitHub 提交/tag/分支；不能只靠 Jira fixVersion 下结论 |
-| 深查 | 证据不足、来源冲突、调用链未追完、历史案例过多、日志量大、用户明确要求多 agent / 子 agent / 并行深查 | 进入深查路径；只有用户明确要求多 agent 且当前会话暴露 subagent 工具时才派发子 agent |
+| 深查 | 证据不足、来源冲突、调用链未追完、历史案例过多、日志量大、或多来源查证耗时明显 | 默认尝试 subagent 并发；用户明确要求多 agent 时必须尝试；无 subagent 工具时明确降级 |
 
 具体 ZStack 支持事件默认进入“支持事件默认查证”，不要求用户显式说“分析”。完整大报告仍只在用户明确要求完整分析、故障、根因、交接、闭环或提报研发材料时输出。简单概念问题不要默认跑完整工作流；但具体报错、兼容性、能否忽略、客户回复口径不能纯直答。
 
@@ -144,50 +144,68 @@ GitHub 提交/分支查证：
 
 ## 多方并行查证限制
 
+- 进入多方并行查证、修复版本/回合确认或深查，且需要 3 个及以上来源时，默认尝试 `multi_agent_v1.spawn_agent` 等 subagent 调度工具并发查证，不等待用户额外说“多 agent”。
 - 只需要单一证据时，不启动多来源并行。
+- 两个来源以内的轻量答复，可以由主 agent 直接并行调用工具完成。
 - 输入不足时，不启动无效搜索，先问最小补充信息。
 - 已有证据足够支撑当前回答时，不继续扩展来源。
 - 所有查询必须只读，不输出 Token、Authorization、原始 MCP 载荷或未过滤的提供者输出。
 - Tavily、BBS、Jira 和 Confluence 结果属于 E3 参考，不能单独关闭当前事件。
 
+默认并发拆分：
+
+```text
+源码/版本 agent：GitHub 源码、commit、tag、release branch、调用链、版本差异。
+历史案例 agent：ZStack知识社区(BBS) 相似案例、差异、可复用验证动作。
+内部跟踪 agent：Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时补 Confluence 内部口径。
+文档/外部 agent：官网文档、Confluence 文档边界、Tavily 厂商/OS/外部生态资料。
+```
+
+主 agent 保持总控，负责当前证据整理、问题边界、最终合并和结论约束。子 agent 只负责各自来源，不跨来源扩展。主 agent 必须等待关键子 agent 结果再下最终结论；超时则标注“某来源查证未完成”，不得把未完成当成未命中。
+
 ## 深查触发规则
 
-`agents/openai.yaml` 只声明 UI 元数据和 MCP 依赖，不会自动创建或启动 subagent。Subagent 不是插件静态配置能力，必须由当前会话暴露 subagent 调度工具，并由主 agent 在满足触发条件时显式派发。当前 Codex 宿主若暴露 `multi_agent_v1.spawn_agent`，用户明确要求多 agent 时必须真实派发有界子任务；没有工具时才降级为主 agent 深查。
+`agents/openai.yaml` 只声明 UI 元数据和 MCP 依赖，不会自动创建或启动 subagent。Subagent 不是插件静态配置能力，必须由当前会话暴露 subagent 调度工具，并由主 agent 在满足触发条件时显式派发。当前 Codex 宿主若暴露 `multi_agent_v1.spawn_agent`，多来源查证默认真实派发有界子任务；没有工具时才降级为主 agent 深查。
 
-默认使用主 agent 深查，不默认启用多 agent。
+默认优先使用 subagent 并发深查；只有 subagent 工具不可用、任务过小不可拆、或只需要 1-2 个来源时，才使用主 agent 深查。
 
 | 深查方向 | 触发条件 | 输出目标 |
 |----------|----------|----------|
-| 主 agent 深查 | 任一深查触发条件成立，但用户未明确要求多 agent，或当前会话未暴露 subagent 工具 | 当前主 agent 完成查证、合并和边界说明 |
-| 源码深查 subagent | 用户明确要求多 agent / 子 agent / 并行深查，且 GitHub 搜到入口但调用链未追完；版本差异需要确认；源码与现象存在缺口 | GitHub commit、tag、release branch、调用链、关键分支、版本差异、机制边界 |
-| 历史案例 subagent | 用户明确要求多 agent / 子 agent / 并行深查，且 BBS 命中过多；需要筛选相似度；历史案例之间结论冲突 | BBS 相似案例排序、差异、可复用验证动作 |
+| 主 agent 深查 | subagent 工具不可用、任务过小不可拆、或只需要 1-2 个来源 | 当前主 agent 完成查证、合并和边界说明 |
+| 源码/版本 subagent | GitHub 搜到入口但调用链没追完；版本差异需要确认；修复版本/回合确认需要 commit/tag/branch | GitHub commit、tag、release branch、调用链、关键分支、版本差异、机制边界 |
+| 历史案例 subagent | BBS 命中过多；需要筛选相似度；历史案例之间结论冲突 | BBS 相似案例排序、差异、可复用验证动作 |
+| 内部跟踪 subagent | 需要 Jira 缺陷/需求、影响版本、修复版本、关联项，或 Confluence 内部口径 | Jira/Confluence 脱敏摘要、状态、版本边界、能/不能支持的判断 |
+| 文档/外部 subagent | 需要官网文档、发布说明、Tavily/厂商/OS 外部资料 | 文档来源、外部资料、版本边界、能/不能支持的判断 |
 
 Tavily 和官网文档暂不 agent 化，保持工具查询即可。
 
 ### Subagent 显式调度规则
 
-只有同时满足以下条件才触发 subagent：
+满足以下条件时默认触发 subagent：
 
-- 用户明确要求“多 agent / 子 agent / subagent / 并行深查 / 多路并行深查”。
+- 进入多方并行查证、修复版本/回合确认或深查。
+- 需要 3 个及以上来源，或用户明确要求“多 agent / 子 agent / subagent / 并行深查 / 多路并行深查”。
 - 当前 Codex 会话可发现并调用 subagent 调度工具，例如 `multi_agent_v1.spawn_agent`。
 - 任务可拆成互不覆盖的有界子任务。
 
-当用户明确要求多 agent 时，主 agent 必须先确认是否有 subagent 调度工具。若宿主提供工具发现能力，先搜索 `subagent`、`multi agent` 或 `spawn_agent`；若当前工具列表已明确存在 `multi_agent_v1.spawn_agent` 等可调用工具，必须真实派发有界子任务。没有找到或无法调用时，标注失败层为“工具未暴露”，并降级为主 agent 查证。
+当进入默认触发条件，或用户明确要求多 agent 时，主 agent 必须先确认是否有 subagent 调度工具。若宿主提供工具发现能力，先搜索 `subagent`、`multi agent` 或 `spawn_agent`；若当前工具列表已明确存在 `multi_agent_v1.spawn_agent` 等可调用工具，必须真实派发有界子任务。没有找到或无法调用时，标注失败层为“工具未暴露”，并降级为主 agent 查证。
 
-如果用户未明确要求多 agent，不做 subagent 工具发现。
+如果只是低风险直答、单点求证或两个来源以内的轻量答复，不做 subagent 工具发现。
 
 触发后：
 
 - 主 agent 保持总控，继续整理问题、关键路径查证和最终合并。
-- 源码深查 subagent 只查 GitHub，不查 Jira/Confluence。
+- 源码/版本 subagent 只查 GitHub，不查 Jira/Confluence。
 - 历史案例 subagent 只查 BBS，不查 Jira/Confluence。
+- 内部跟踪 subagent 只查 Jira/Confluence，不输出内部原文和内部 URL。
+- 文档/外部 subagent 使用脱敏关键词查询官网文档、发布说明或 Tavily。
 - 子 agent 输出必须使用统一证据块，并说明不能支持的判断。
 
 未触发时必须明确状态：
 
 ```text
 Subagent 状态：未触发
-原因：用户未明确要求多 agent / 当前会话未暴露 subagent 调度工具 / 任务不适合拆分
+原因：当前会话未暴露 subagent 调度工具 / 任务不适合拆分 / 仅需 1-2 个来源
 降级动作：由主 agent 继续完成必要查证
 ```
 

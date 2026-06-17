@@ -1,7 +1,7 @@
 {
   "name": "zstack-support",
-  "version": "2.9.6+codex.20260617174646",
-  "description": "Evidence-first ZStack support workbench with support-event-first evidence routing, active GitHub/BBS/Jira lookup for concrete incidents, external web search, read-only Confluence reference, and closure workflows.",
+  "version": "2.9.6+codex.20260617180127",
+  "description": "Evidence-first ZStack support workbench with support-event-first evidence routing, default subagent parallel verification for multi-source incidents, active GitHub/BBS/Jira lookup, external web search, read-only Confluence reference, and closure workflows.",
   "author": {
     "name": "ZStack Support Team"
   },
@@ -17,7 +17,7 @@
   "interface": {
     "displayName": "ZStack Support Agent（源码级分析）",
     "shortDescription": "ZStack 事件分析、源码查证、BBS 历史参考与渠道安全闭环。",
-    "longDescription": "基于证据优先方法论的 ZStack 支持分析插件。内置事件分析、源码查证、MCP 连通检查、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，结合 GitHub、ZStack知识社区(BBS)、Tavily 与只读 Jira/Confluence MCP。具体 ZStack 客户事件默认主动查 GitHub+BBS+Jira，涉及版本边界或标准口径时补查 Confluence，只有低风险概念问题才直接回答。",
+    "longDescription": "基于证据优先方法论的 ZStack 支持分析插件。内置事件分析、源码查证、MCP 连通检查、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，结合 GitHub、ZStack知识社区(BBS)、Tavily 与只读 Jira/Confluence MCP。具体 ZStack 客户事件默认主动查 GitHub+BBS+Jira，涉及版本边界或标准口径时补查 Confluence；需要 3 个及以上来源时默认尝试 subagent 并发查证。",
     "developerName": "ZStack Support Team",
     "category": "Engineering",
     "capabilities": [
@@ -27,7 +27,7 @@
       "Read"
     ],
     "defaultPrompt": [
-      "@事件分析 粘贴客户反馈、告警或错误日志，具体事件默认主动查 GitHub+BBS+Jira，必要时查 Confluence/Tavily",
+      "@事件分析 粘贴客户反馈、告警或错误日志，具体事件默认主动查 GitHub+BBS+Jira；3 个及以上来源默认尝试 subagent 并发",
       "@源码查证 查询类名、API、配置键或错误文本对应的源码机制",
       "@脱敏检查 检查交接摘要是否适合渠道安全分享"
     ],
