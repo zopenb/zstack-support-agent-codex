@@ -95,7 +95,7 @@ description: Evidence-first ZStack support event analysis with dynamic routing a
 GitHub：GITHUB_MCP_TOKEN
 ZStack知识社区(BBS)：ZSTACK_BBS_AUTHORIZATION
 Tavily：TAVILY_HIKARI_TOKEN
-Atlassian：ATLASSIAN_AUTHORIZATION（由 ATLASSIAN_BASIC_AUTH 派生）
+Atlassian：ATLASSIAN_AUTHORIZATION
 ```
 
 ## 单点求证路径

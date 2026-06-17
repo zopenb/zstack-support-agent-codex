@@ -44,30 +44,51 @@ Write-Host "Atlassian shared MCP configured: zstack_atlassian_shared -> http://1
 & $CodexExe plugin marketplace add $MarketplaceRoot
 & $CodexExe plugin add "$PluginName@$MarketplaceName"
 
-$atlassianAuth = [Environment]::GetEnvironmentVariable("ATLASSIAN_BASIC_AUTH", "Process")
-if ([string]::IsNullOrEmpty($atlassianAuth)) {
-    $atlassianAuth = [Environment]::GetEnvironmentVariable("ATLASSIAN_BASIC_AUTH", "User")
+function Get-EnvValue {
+    param([string]$Name)
+
+    foreach ($scope in @("Process", "User", "Machine")) {
+        $value = [Environment]::GetEnvironmentVariable($Name, $scope)
+        if (-not [string]::IsNullOrWhiteSpace($value)) {
+            return $value
+        }
+    }
+
+    return $null
 }
-if ([string]::IsNullOrEmpty($atlassianAuth)) {
-    $atlassianAuth = [Environment]::GetEnvironmentVariable("ATLASSIAN_BASIC_AUTH", "Machine")
-}
-if (-not [string]::IsNullOrEmpty($atlassianAuth)) {
-    if ($atlassianAuth -match '^\s*Basic\s+') {
-        Write-Warning "ATLASSIAN_BASIC_AUTH should be only base64(username:password), without the 'Basic ' prefix."
+
+$atlassianAuthorization = Get-EnvValue "ATLASSIAN_AUTHORIZATION"
+$legacyAtlassianBasic = Get-EnvValue "ATLASSIAN_BASIC_AUTH"
+
+if (-not [string]::IsNullOrWhiteSpace($atlassianAuthorization)) {
+    if ($atlassianAuthorization -notmatch '^\s*Basic\s+\S+') {
+        Write-Warning "ATLASSIAN_AUTHORIZATION should be the complete header value: Basic <base64(username:password)>."
+    } else {
+        Write-Host "Environment variable present: ATLASSIAN_AUTHORIZATION"
+    }
+} elseif (-not [string]::IsNullOrWhiteSpace($legacyAtlassianBasic)) {
+    Write-Warning "ATLASSIAN_BASIC_AUTH is deprecated. Set ATLASSIAN_AUTHORIZATION='Basic <base64(username:password)>' directly for new installations."
+
+    $authorization = $null
+    if ($legacyAtlassianBasic -match '^\s*Basic\s+\S+') {
+        $authorization = $legacyAtlassianBasic.Trim()
     } else {
         try {
-            $decoded = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($atlassianAuth))
+            $decoded = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($legacyAtlassianBasic))
             if ($decoded -notmatch ':') {
                 Write-Warning "ATLASSIAN_BASIC_AUTH decoded successfully but does not look like username:password."
             } else {
-                $authorization = "Basic $atlassianAuth"
-                [Environment]::SetEnvironmentVariable("ATLASSIAN_AUTHORIZATION", $authorization, "User")
-                [Environment]::SetEnvironmentVariable("ATLASSIAN_AUTHORIZATION", $authorization, "Process")
-                Write-Host "Derived environment variable present: ATLASSIAN_AUTHORIZATION"
+                $authorization = "Basic $legacyAtlassianBasic"
             }
         } catch {
             Write-Warning "ATLASSIAN_BASIC_AUTH does not look like valid base64(username:password)."
         }
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($authorization)) {
+        [Environment]::SetEnvironmentVariable("ATLASSIAN_AUTHORIZATION", $authorization, "User")
+        [Environment]::SetEnvironmentVariable("ATLASSIAN_AUTHORIZATION", $authorization, "Process")
+        Write-Host "Migrated legacy Atlassian variable to: ATLASSIAN_AUTHORIZATION"
     }
 }
 
@@ -75,7 +96,6 @@ $requiredEnv = @(
     "GITHUB_MCP_TOKEN",
     "ZSTACK_BBS_AUTHORIZATION",
     "TAVILY_HIKARI_TOKEN",
-    "ATLASSIAN_BASIC_AUTH",
     "ATLASSIAN_AUTHORIZATION"
 )
 foreach ($name in $requiredEnv) {

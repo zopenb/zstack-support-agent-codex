@@ -23,7 +23,7 @@
 
 渠道 MCP 默认必须只读。ZStack知识社区(BBS)、GitHub 源码、Tavily 和 Atlassian MCP 必须使用环境变量凭证，仅暴露批准的只读工具。服务器可见不够；只有在成功的只读结构化查询之后才记录“结构化查询成功”。
 
-Atlassian MCP 必须使用共享远端 `zstack_atlassian_shared`，通过 `ATLASSIAN_AUTHORIZATION` 注入完整 `Basic <base64(username:password)>` Header；该值可由安装脚本从 `ATLASSIAN_BASIC_AUTH=base64(username:password)` 派生。只允许 Jira/Confluence 只读查证。输出时只允许脱敏摘要、工单号、状态、版本边界和可公开行动建议；禁止输出内部 URL、账号、Token、原始页面内容、原始工单描述、评论原文或未脱敏附件。
+Atlassian MCP 必须使用共享远端 `zstack_atlassian_shared`，通过 `ATLASSIAN_AUTHORIZATION` 注入完整 `Basic <base64(username:password)>` Header。旧环境中的 `ATLASSIAN_BASIC_AUTH=base64(username:password)` 只作为安装脚本迁移兼容，不作为新安装要求。只允许 Jira/Confluence 只读查证。输出时只允许脱敏摘要、工单号、状态、版本边界和可公开行动建议；禁止输出内部 URL、账号、Token、原始页面内容、原始工单描述、评论原文或未脱敏附件。
 
 GitHub 访问应在第一版 Agent 工作流中使用 GitHub MCP 只读模式。`gh` 可作为后续运维/调试回退。不要引入非标准 GitHub CLI 替代品。
 

@@ -45,10 +45,10 @@ ZStack Support Agent（源码级分析），基于证据优先方法论，结合
 GITHUB_MCP_TOKEN
 ZSTACK_BBS_AUTHORIZATION
 TAVILY_HIKARI_TOKEN
-ATLASSIAN_BASIC_AUTH
+ATLASSIAN_AUTHORIZATION
 ```
 
-`ATLASSIAN_AUTHORIZATION` 不需要手动配置。运行 `scripts\install.ps1` 后，会从 `ATLASSIAN_BASIC_AUTH` 自动派生。
+`ATLASSIAN_AUTHORIZATION` 需要手动配置为完整 Header 值：`Basic <base64(username:password)>`。
 
 ### 每个凭据怎么获取
 
@@ -57,7 +57,7 @@ ATLASSIAN_BASIC_AUTH
 | `GITHUB_MCP_TOKEN` | 在 GitHub 个人设置中创建 Personal Access Token：**Settings → Developer settings → Personal access tokens**。优先使用 fine-grained token；用于公开 ZStack 源码查证时，只需只读仓库元数据和内容权限。如果团队有 GitHub/Copilot MCP 统一要求，以管理员要求为准。 | 原始 token，例如 `github_pat_...` |
 | `ZSTACK_BBS_AUTHORIZATION` | 向团队获取 ZStack知识社区(BBS) 账号。将 `username:password` 转成 base64，再加 `Basic ` 前缀。 | `Basic <base64(username:password)>` |
 | `TAVILY_HIKARI_TOKEN` | 向 Tavily Hikari MCP 网关维护者获取。当前插件连接的是团队网关 `https://tavily.zopen1.com/mcp`，不要默认把公网 Tavily token 当成可用值。 | 原始 token |
-| `ATLASSIAN_BASIC_AUTH` | 使用 Jira/Confluence 账号，服务地址为 `http://jira.zstack.io` 和 `http://confluence.zstack.io`。将 `username:password` 转成 base64。 | `<base64(username:password)>`，不要带 `Basic ` 前缀 |
+| `ATLASSIAN_AUTHORIZATION` | 使用 Jira/Confluence 账号，服务地址为 `http://jira.zstack.io` 和 `http://confluence.zstack.io`。将 `username:password` 转成 base64，再加 `Basic ` 前缀。 | `Basic <base64(username:password)>` |
 
 ### Basic Auth 怎么编码
 
@@ -73,10 +73,10 @@ $base64
 
 ```text
 ZSTACK_BBS_AUTHORIZATION=Basic <base64>
-ATLASSIAN_BASIC_AUTH=<base64>
+ATLASSIAN_AUTHORIZATION=Basic <base64>
 ```
 
-Atlassian 特别注意：`ATLASSIAN_BASIC_AUTH` 只填 base64，不填 `Basic `。安装脚本会自动生成运行时变量 `ATLASSIAN_AUTHORIZATION=Basic <base64>`。
+Atlassian 特别注意：`ATLASSIAN_AUTHORIZATION` 要填完整 Header 值，必须包含 `Basic ` 前缀。旧环境如果还配置了 `ATLASSIAN_BASIC_AUTH=<base64>`，安装脚本会兼容迁移，但新安装不再推荐使用旧变量。
 
 ### Windows 怎么录入
 
@@ -86,7 +86,7 @@ PowerShell 用户变量方式：
 [Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', '<github-token>', 'User')
 [Environment]::SetEnvironmentVariable('ZSTACK_BBS_AUTHORIZATION', 'Basic <bbs-base64>', 'User')
 [Environment]::SetEnvironmentVariable('TAVILY_HIKARI_TOKEN', '<tavily-token>', 'User')
-[Environment]::SetEnvironmentVariable('ATLASSIAN_BASIC_AUTH', '<atlassian-base64>', 'User')
+[Environment]::SetEnvironmentVariable('ATLASSIAN_AUTHORIZATION', 'Basic <atlassian-base64>', 'User')
 ```
 
 Windows 图形界面方式：
@@ -110,7 +110,6 @@ $names = @(
   'GITHUB_MCP_TOKEN',
   'ZSTACK_BBS_AUTHORIZATION',
   'TAVILY_HIKARI_TOKEN',
-  'ATLASSIAN_BASIC_AUTH',
   'ATLASSIAN_AUTHORIZATION'
 )
 
@@ -145,6 +144,6 @@ foreach ($name in $names) {
 | **GitHub** | 自动只读查询 zstackio/zstack 和 zstackio/zstack-utility 源码，解释 API/配置/调用路径等产品机制 | Windows 环境变量 `GITHUB_MCP_TOKEN` |
 | **ZStack知识社区(BBS)** | 自动查询历史相似事件，提供相似症状参考和可复用验证动作 | Windows 环境变量 `ZSTACK_BBS_AUTHORIZATION` |
 | **Tavily** | 搜索外部公开 Web、OS/厂商文档和论坛，辅助分析 Linux、Windows、Red Hat、Ubuntu、内核、QEMU/KVM、libvirt、Ceph、GPU 驱动等非 ZStack 问题 | Windows 环境变量 `TAVILY_HIKARI_TOKEN` |
-| **Atlassian** | 只读查询 Jira 工单和 Confluence 内部文档。Jira 用于已知缺陷、需求编号、修复状态、影响/修复版本；Confluence 用于内部说明、版本边界、操作规范、兼容性矩阵和产品口径 | 共享远端 MCP `zstack_atlassian_shared`；Windows 环境变量 `ATLASSIAN_BASIC_AUTH=base64(username:password)`，安装脚本派生运行时 `ATLASSIAN_AUTHORIZATION` |
+| **Atlassian** | 只读查询 Jira 工单和 Confluence 内部文档。Jira 用于已知缺陷、需求编号、修复状态、影响/修复版本；Confluence 用于内部说明、版本边界、操作规范、兼容性矩阵和产品口径 | 共享远端 MCP `zstack_atlassian_shared`；Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>` |
 
 > 不连接任何连接器也可正常使用。源码、ZStack知识社区、外部 Web 和 Atlassian 参考部分会标注“MCP 查询未完成”并跳过，分析基于当前案例证据进行。Tavily 和 Atlassian 结果只作为 E3 参考，不能替代当前客户证据，也不能单独闭环事件。

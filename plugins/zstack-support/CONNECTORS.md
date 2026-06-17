@@ -107,16 +107,15 @@ ZSTACK_BBS_AUTHORIZATION=Basic <base64(username:password)>
 - URL：`http://172.18.250.27:3340/mcp`
 - 传输协议：streamable-http
 - 只读保护：共享远端服务只应暴露 Jira/Confluence 查询类工具，不允许创建、更新或评论内容
-- 认证：通过本机环境变量 `ATLASSIAN_AUTHORIZATION` 注入完整 Authorization Header；安装脚本会从 `ATLASSIAN_BASIC_AUTH=base64(username:password)` 派生该运行时变量，不在插件内保存真实密码
+- 认证：通过本机环境变量 `ATLASSIAN_AUTHORIZATION` 注入完整 Authorization Header，不在插件内保存真实密码
 
 ### 环境变量
 
 ```text
-ATLASSIAN_BASIC_AUTH
 ATLASSIAN_AUTHORIZATION
 ```
 
-`ATLASSIAN_BASIC_AUTH` 必须放在 Windows 用户或机器环境变量中，值只写 `base64(username:password)`，不要带 `Basic ` 前缀。运行 `scripts\install.ps1` 后会自动派生 `ATLASSIAN_AUTHORIZATION=Basic <base64>`，这是 Codex 当前 `env_http_headers` 能识别的运行时 Header 变量。不要把密码、base64 值或完整 Header 写入 `.mcp.json`、`config.toml` 或插件仓库。
+`ATLASSIAN_AUTHORIZATION` 必须放在 Windows 用户或机器环境变量中，值写完整 Header：`Basic <base64(username:password)>`。这是 Codex 当前 `env_http_headers` 能识别的运行时 Header 变量。旧环境如果还配置了 `ATLASSIAN_BASIC_AUTH=base64(username:password)`，安装脚本会兼容迁移，但新安装不再推荐使用旧变量。不要把密码、base64 值或完整 Header 写入 `.mcp.json`、`config.toml` 或插件仓库。
 
 ### 共享服务要求
 
@@ -130,8 +129,8 @@ codex mcp get zstack_atlassian_shared
 
 ### 开启步骤
 
-1. 设置 Windows 环境变量 `ATLASSIAN_BASIC_AUTH=base64(username:password)`
-2. 运行插件安装脚本，自动生成 `ATLASSIAN_AUTHORIZATION=Basic <base64>`
+1. 设置 Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`
+2. 运行插件安装脚本
 3. 重启 Codex 或打开新线程
 4. 运行 `codex mcp list`，确认 `zstack_atlassian_shared` 为 enabled
 5. 运行 `zstack-support:连通检查`
