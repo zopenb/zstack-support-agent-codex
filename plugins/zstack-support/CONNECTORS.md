@@ -115,6 +115,8 @@ ZSTACK_BBS_AUTHORIZATION=Basic <base64(username:password)>
 ATLASSIAN_AUTHORIZATION
 ```
 
+Jira/Confluence 现在只需要这 **1 个变量**。不再要求分别配置 `JIRA_USERNAME`、`JIRA_PASSWORD`、`CONFLUENCE_USERNAME`、`CONFLUENCE_PASSWORD`。
+
 `ATLASSIAN_AUTHORIZATION` 必须放在 Windows 用户或机器环境变量中，值写完整 Header：`Basic <base64(username:password)>`。这是 Codex 当前 `env_http_headers` 能识别的运行时 Header 变量。旧环境如果还配置了 `ATLASSIAN_BASIC_AUTH=base64(username:password)`，安装脚本会兼容迁移，但新安装不再推荐使用旧变量。不要把密码、base64 值或完整 Header 写入 `.mcp.json`、`config.toml` 或插件仓库。
 
 ### 共享服务要求
@@ -129,7 +131,7 @@ codex mcp get zstack_atlassian_shared
 
 ### 开启步骤
 
-1. 设置 Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`
+1. 设置 Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`。推荐直接运行 `plugins\zstack-support\scripts\set-user-env.ps1` 统一录入全部四个插件变量
 2. 运行插件安装脚本
 3. 重启 Codex 或打开新线程
 4. 运行 `codex mcp list`，确认 `zstack_atlassian_shared` 为 enabled

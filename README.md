@@ -47,6 +47,8 @@ TAVILY_HIKARI_TOKEN
 ATLASSIAN_AUTHORIZATION
 ```
 
+其中 Jira/Confluence 现在只需要 **1 个变量**：`ATLASSIAN_AUTHORIZATION`。不再要求分别配置 `JIRA_USERNAME`、`JIRA_PASSWORD`、`CONFLUENCE_USERNAME`、`CONFLUENCE_PASSWORD`，也不推荐继续使用旧的 `ATLASSIAN_BASIC_AUTH`。
+
 不要把真实 Token、密码、base64 值或完整 Authorization Header 写入仓库、截图、文档或工单。
 
 ## 每个 Token 怎么获取
@@ -79,7 +81,38 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 
 ## Windows 环境变量录入
 
-PowerShell 用户变量方式：
+推荐方式：从仓库根目录运行交互式脚本，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1
+```
+
+如果只想补充缺失变量，保留已有变量：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1 -SkipExisting
+```
+
+也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的交互式脚本。
+
+```powershell
+$githubToken = '<github-token>'
+$tavilyToken = '<tavily-token>'
+$bbsUser = '<bbs-username>'
+$bbsPassword = '<bbs-password>'
+$atlassianUser = '<jira-confluence-username>'
+$atlassianPassword = '<jira-confluence-password>'
+
+$bbsAuth = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("$bbsUser`:$bbsPassword"))
+$atlassianAuth = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("$atlassianUser`:$atlassianPassword"))
+
+[Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', $githubToken, 'User')
+[Environment]::SetEnvironmentVariable('TAVILY_HIKARI_TOKEN', $tavilyToken, 'User')
+[Environment]::SetEnvironmentVariable('ZSTACK_BBS_AUTHORIZATION', $bbsAuth, 'User')
+[Environment]::SetEnvironmentVariable('ATLASSIAN_AUTHORIZATION', $atlassianAuth, 'User')
+```
+
+手动 PowerShell 用户变量方式：
 
 ```powershell
 [Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', '<github-token>', 'User')
@@ -141,6 +174,30 @@ URL: http://172.18.250.27:3340/mcp
 
 不要回退到旧的 `zstack_atlassian` 本机适配器、`support_archive`、`support_sql_analyst` 或其他旧目标。
 
+## ZStack 日志路径基准
+
+插件内置日志路径基准，避免事件分析时再生成不存在的路径。当前默认只认可以下常用路径：
+
+```text
+管理节点：/usr/local/zstack/apache-tomcat/logs/management-server.log*
+计算节点：/var/log/zstack/zstack-kvmagent.log*
+```
+
+不要默认使用这些幻觉路径：
+
+```text
+/var/log/zstack/management-server.log*
+/var/log/zstack/kvmagent.log*
+```
+
+如果组件或部署方式不确定，先用只读命令定位：
+
+```bash
+find /usr/local/zstack /var/log/zstack -maxdepth 6 -type f \
+  \( -name '*management-server*.log*' -o -name '*kvmagent*.log*' -o -name '*zstack*.log*' \) \
+  2>/dev/null | sort
+```
+
 ## 验证安装
 
 ```powershell
@@ -185,3 +242,4 @@ codex plugin add zstack-support@zstack-support-local
 - 插件说明：[plugins/zstack-support/README.md](plugins/zstack-support/README.md)
 - MCP 连接器说明：[plugins/zstack-support/CONNECTORS.md](plugins/zstack-support/CONNECTORS.md)
 - 连通检查技能：[plugins/zstack-support/skills/连通检查/SKILL.md](plugins/zstack-support/skills/连通检查/SKILL.md)
+- 日志路径基准：[plugins/zstack-support/skills/ZStack Support Knowledge/references/log-paths.md](plugins/zstack-support/skills/ZStack%20Support%20Knowledge/references/log-paths.md)

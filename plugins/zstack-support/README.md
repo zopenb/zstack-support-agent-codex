@@ -50,6 +50,8 @@ ATLASSIAN_AUTHORIZATION
 
 `ATLASSIAN_AUTHORIZATION` 需要手动配置为完整 Header 值：`Basic <base64(username:password)>`。
 
+Jira/Confluence 现在只需要 **1 个变量**：`ATLASSIAN_AUTHORIZATION`。不再要求分别配置 `JIRA_USERNAME`、`JIRA_PASSWORD`、`CONFLUENCE_USERNAME`、`CONFLUENCE_PASSWORD`，也不推荐继续使用旧的 `ATLASSIAN_BASIC_AUTH`。
+
 ### 每个凭据怎么获取
 
 | 环境变量 | 获取方式 | 填写格式 |
@@ -80,7 +82,38 @@ Atlassian 特别注意：`ATLASSIAN_AUTHORIZATION` 要填完整 Header 值，必
 
 ### Windows 怎么录入
 
-PowerShell 用户变量方式：
+推荐方式：从 marketplace 仓库根目录运行交互式脚本，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1
+```
+
+如果只想补充缺失变量，保留已有变量：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1 -SkipExisting
+```
+
+也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的交互式脚本。
+
+```powershell
+$githubToken = '<github-token>'
+$tavilyToken = '<tavily-token>'
+$bbsUser = '<bbs-username>'
+$bbsPassword = '<bbs-password>'
+$atlassianUser = '<jira-confluence-username>'
+$atlassianPassword = '<jira-confluence-password>'
+
+$bbsAuth = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("$bbsUser`:$bbsPassword"))
+$atlassianAuth = 'Basic ' + [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("$atlassianUser`:$atlassianPassword"))
+
+[Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', $githubToken, 'User')
+[Environment]::SetEnvironmentVariable('TAVILY_HIKARI_TOKEN', $tavilyToken, 'User')
+[Environment]::SetEnvironmentVariable('ZSTACK_BBS_AUTHORIZATION', $bbsAuth, 'User')
+[Environment]::SetEnvironmentVariable('ATLASSIAN_AUTHORIZATION', $atlassianAuth, 'User')
+```
+
+手动 PowerShell 用户变量方式：
 
 ```powershell
 [Environment]::SetEnvironmentVariable('GITHUB_MCP_TOKEN', '<github-token>', 'User')
@@ -147,3 +180,27 @@ foreach ($name in $names) {
 | **Atlassian** | 只读查询 Jira 工单和 Confluence 内部文档。Jira 用于已知缺陷、需求编号、修复状态、影响/修复版本；Confluence 用于内部说明、版本边界、操作规范、兼容性矩阵和产品口径 | 共享远端 MCP `zstack_atlassian_shared`；Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>` |
 
 > 不连接任何连接器也可正常使用。源码、ZStack知识社区、外部 Web 和 Atlassian 参考部分会标注“MCP 查询未完成”并跳过，分析基于当前案例证据进行。Tavily 和 Atlassian 结果只作为 E3 参考，不能替代当前客户证据，也不能单独闭环事件。
+
+## ZStack 日志路径基准
+
+事件分析涉及日志收集时必须使用内置日志路径基准，避免生成不存在的路径。当前默认只认可以下常用路径：
+
+```text
+管理节点：/usr/local/zstack/apache-tomcat/logs/management-server.log*
+计算节点：/var/log/zstack/zstack-kvmagent.log*
+```
+
+不要默认使用这些幻觉路径：
+
+```text
+/var/log/zstack/management-server.log*
+/var/log/zstack/kvmagent.log*
+```
+
+组件或部署方式不确定时，先让用户执行只读定位命令：
+
+```bash
+find /usr/local/zstack /var/log/zstack -maxdepth 6 -type f \
+  \( -name '*management-server*.log*' -o -name '*kvmagent*.log*' -o -name '*zstack*.log*' \) \
+  2>/dev/null | sort
+```

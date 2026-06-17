@@ -11,7 +11,7 @@ description: Evidence-first ZStack support event analysis with dynamic routing a
 
 支持的产品域：ZStack Cloud、ZStack AIOS、ZSphere，以及 KVM/Libvirt/QEMU 和 AIOS 相关的 vLLM/SGLang。
 
-优先引用 [查证路由规则](../ZStack%20Support%20Knowledge/references/evidence-routing.md)，完整方法论参考 [ZStack Support Knowledge](../ZStack%20Support%20Knowledge/SKILL.md)。
+优先引用 [查证路由规则](../ZStack%20Support%20Knowledge/references/evidence-routing.md)。涉及管理节点、计算节点日志路径或日志收集命令时，必须引用 [日志路径基准](../ZStack%20Support%20Knowledge/references/log-paths.md)，不得凭经验编造路径。完整方法论参考 [ZStack Support Knowledge](../ZStack%20Support%20Knowledge/SKILL.md)。
 
 ## 第零阶段：入口判断
 
@@ -452,6 +452,13 @@ notes.md 动作：新建 / 追加 / 交叉引用 / 跳过
 ### 5. 安全行动建议
 
 默认推荐只读命令和客户安全验证步骤。
+
+日志路径约束：
+
+- 管理节点主日志只使用 `/usr/local/zstack/apache-tomcat/logs/management-server.log*`。
+- 计算节点 KVM agent 日志只使用 `/var/log/zstack/zstack-kvmagent.log*`。
+- 不要把 `/var/log/zstack/management-server.log*` 或 `/var/log/zstack/kvmagent.log*` 作为默认路径。
+- 未确认组件路径时，先给只读 `find`/`systemctl list-units '*zstack*'` 定位命令，不直接写硬编码路径。
 
 ```text
 目的：

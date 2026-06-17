@@ -61,6 +61,32 @@
 | Jira | 已知缺陷、需求编号、修复状态、影响版本、修复版本、组件归属、研发结论 | 只读内部参考，不能直接向客户输出原文、评论、附件或内部 URL |
 | Confluence | 内部说明、版本边界、操作规范、发布说明补充、兼容性矩阵、产品口径 | 只读内部参考，不能直接向客户输出原文、附件或内部 URL |
 
+## 日志路径路由
+
+涉及 ZStack 日志收集时，必须引用 `log-paths.md` 的基准路径。不要根据通用 Linux 习惯临时编造路径。
+
+确定路径：
+
+```text
+管理节点：/usr/local/zstack/apache-tomcat/logs/management-server.log*
+计算节点：/var/log/zstack/zstack-kvmagent.log*
+```
+
+禁止默认建议：
+
+```text
+/var/log/zstack/management-server.log*
+/var/log/zstack/kvmagent.log*
+```
+
+如果用户没有说明对象是管理节点还是计算节点，或涉及未列出的组件日志，先问最小补充信息或给只读定位命令：
+
+```bash
+find /usr/local/zstack /var/log/zstack -maxdepth 6 -type f \
+  \( -name '*management-server*.log*' -o -name '*kvmagent*.log*' -o -name '*zstack*.log*' \) \
+  2>/dev/null | sort
+```
+
 ## 修复版本 / 回合确认
 
 凡是用户询问以下内容，必须进入本路径：

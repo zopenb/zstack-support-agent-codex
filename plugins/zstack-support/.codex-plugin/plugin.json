@@ -1,6 +1,6 @@
 {
   "name": "zstack-support",
-  "version": "2.9.6+codex.20260617090224",
+  "version": "2.9.6+codex.20260617172614",
   "description": "Evidence-first ZStack support workbench with dynamic evidence routing, lightweight evidence-backed answers, targeted source lookup, BBS historical reference, external web search, read-only Jira/Confluence lookup, and closure workflows.",
   "author": {
     "name": "ZStack Support Team"
