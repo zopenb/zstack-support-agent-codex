@@ -135,6 +135,32 @@ codex mcp get zstack_atlassian_shared
 4. 运行 `codex mcp list`，确认 `zstack_atlassian_shared` 为 enabled
 5. 运行 `zstack-support:连通检查`
 
+### 已配置但未注入时怎么定位
+
+如果 `zstack-support:连通检查` 显示：
+
+```text
+第 2 步（共享远端配置）：通过
+第 3 步（认证变量）：通过
+最终状态：已配置但未注入
+```
+
+说明插件声明、远端 URL 和环境变量已经被识别，但 Codex 当前会话没有拿到 Jira/Confluence 工具列表。先在目标电脑运行只读诊断脚本：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\debug-atlassian-mcp.ps1
+```
+
+判断方式：
+
+| 诊断结果 | 含义 | 下一步 |
+|----------|------|--------|
+| `Auth env` / `Header shape` / `Base64 decode` 未通过 | 环境变量缺失或格式错误 | 重新设置 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`，重启 Codex |
+| `TCP reachability` 未通过 | 目标电脑无法访问共享 MCP 地址 | 检查公司网络、VPN、防火墙和到 `172.18.250.27:3340` 的路由 |
+| `MCP initialize` 未通过且是 401/403 | 认证或账号权限问题 | 确认账号密码、base64 内容和 Jira/Confluence 权限 |
+| `MCP initialize` 未通过且是 5xx | 共享 MCP 服务问题 | 联系共享 MCP 服务维护者检查 `172.18.250.27:3340` |
+| 全部通过，但 Codex 仍未注入工具 | 远端、网络、认证基本可用，问题在 Codex 工具发现/注入阶段 | 查看 Codex 客户端日志中 `zstack_atlassian_shared` 的工具加载错误；完全退出 Codex 后重开新线程 |
+
 ### 证据边界
 
 - Atlassian 查询只能用于内部参考，不直接面向客户转述原文
