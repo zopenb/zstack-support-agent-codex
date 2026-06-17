@@ -5,7 +5,7 @@ description: Targeted ZStack public source lookup on GitHub for mechanisms, APIs
 
 # ZStack 源码查证
 
-独立使用 GitHub MCP 只读查询 ZStack 源码。它是单点源码求证路径，不默认跑完整事件分析，也不默认查询 BBS、Tavily 或官网文档。
+独立使用 GitHub MCP 只读查询 ZStack 源码。它是单点源码求证路径，不默认跑完整事件分析，也不默认查询 BBS、Tavily、Jira、Confluence 或官网文档。
 
 查证路由参考 [查证路由规则](../ZStack%20Support%20Knowledge/references/evidence-routing.md)。
 
@@ -60,7 +60,14 @@ GitHub MCP 状态：结构化查询成功 / MCP 查询未完成 / 未配置
 4. 只读取最小相关源码片段。
 5. 追踪必要调用链，但不要无界扩展。
 6. 如果源码版本不匹配用户产品版本，标记为近似参考。
-7. 只有在用户要求或源码边界需要补充时，才按需查询官网文档、BBS 或 Tavily。
+7. 只有在用户明确要求或源码边界需要补充时，才按需查询官网文档、BBS 或 Tavily。
+
+硬约束：
+
+- 首个查证动作必须是 GitHub code/search/commit/tag/branch 或文件读取。
+- Jira、Confluence、BBS、Tavily 不得替代 GitHub 源码查证。
+- GitHub MCP 不可用时，只能输出“GitHub 源码查证未完成”，不得改查 Jira/Confluence 后声称完成源码分析。
+- 源码机制、调用链、下发字段、配置键、类名、方法名、报错堆栈的结论必须来自 GitHub 或用户提供的源码片段。
 
 ## 按需补充来源
 
@@ -69,6 +76,8 @@ GitHub MCP 状态：结构化查询成功 / MCP 查询未完成 / 未配置
 - Tavily：问题涉及 Linux、Windows、Red Hat、kernel、QEMU/KVM、libvirt、Ceph、GPU、vLLM/SGLang 等外部生态。
 
 这些补充来源只作为参考，不能证明客户环境实际行为。
+
+Jira/Confluence 不属于 `@源码查证` 的默认补充来源。如果用户需要 Jira 已知缺陷、Confluence 设计口径或完整事件闭环，应转回 `@事件分析`，并在输出中明确 GitHub 源码查证结果与内部参考分开。
 
 ## 输出格式
 
@@ -100,7 +109,7 @@ GitHub MCP 状态：
 
 ## 源码深查 subagent 模板
 
-`agents/openai.yaml` 不会自动启动源码深查 subagent。源码查证可以作为主流程的“源码/版本 agent”任务模板：当 `@事件分析` 进入多来源查证、修复版本/回合确认或深查，且当前 Codex 会话可调用 `multi_agent_v1.spawn_agent` 等 subagent 调度工具时，主 agent 可以并发派发本模板。用户明确要求“多 agent / 子 agent / 并行深查”时也必须尝试派发。没有找到或无法调用 subagent 工具时，输出“Subagent 状态：未触发”，并由主 agent 继续完成源码查证。
+`agents/openai.yaml` 不会自动启动源码深查 subagent。源码查证可以作为主流程的“源码/版本 agent”任务模板：当 `@事件分析` 进入多来源查证、修复版本/回合确认或深查，且当前 Codex 会话可调用 `multi_agent_v1.spawn_agent` 等 subagent 调度工具时，主 agent 可以并发派发本模板。源码/版本 agent 只允许查询 GitHub，不得查询 Jira、Confluence、BBS 或 Tavily。用户明确要求“多 agent / 子 agent / 并行深查”时也必须尝试派发。没有找到或无法调用 subagent 工具时，输出“Subagent 状态：未触发”，并由主 agent 继续完成源码查证。
 
 当 GitHub 搜到入口但调用链没追完、版本差异需要确认、源码与现象存在缺口，才适合派发源码深查 subagent。未触发时，由主 agent 继续完成源码查证，并说明未触发原因。
 
@@ -144,4 +153,4 @@ GitHub 查询词：
 - 最小读取：只读取与查询直接相关的文件或片段。
 - 不证明客户行为：源码解释产品机制，不能证明客户环境实际走了那条路径。
 - 不输出 Token：不暴露认证头、Token 值或原始 MCP 载荷。
-- 不默认全量查证：BBS、Tavily 和官网文档必须按需触发。
+- 不默认全量查证：BBS、Tavily 和官网文档必须按需触发；Jira/Confluence 不在源码查证技能内触发。

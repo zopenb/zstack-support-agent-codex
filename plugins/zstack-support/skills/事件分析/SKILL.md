@@ -20,7 +20,7 @@ description: Evidence-first ZStack support event analysis with dynamic routing a
 | 入口 | 判断标准 | 动作 |
 |------|----------|------|
 | 低风险直答 | 概念解释、通用机制、常见排查思路；不涉及具体版本、客户现场、报错、兼容性、客户回复口径、根因定论 | 直接中文回答，不查 MCP |
-| 支持事件默认查证 | 用户粘贴客户反馈、日志、告警、失败 API、错误文本、截图转写、版本异常、兼容性问题、客户回复口径；即使没有明确说“分析”也属于支持事件 | 主动查 GitHub + BBS + Jira；涉及版本边界/标准口径/发布说明时加查 Confluence；涉及 OS/厂商/外部生态时加查 Tavily。输出可简洁，但必须说明证据边界 |
+| 支持事件默认查证 | 用户粘贴客户反馈、日志、告警、失败 API、错误文本、截图转写、版本异常、兼容性问题、客户回复口径；即使没有明确说“分析”也属于支持事件 | 先按问题性质路由。源码/机制/调用链/代码定位必须先查 GitHub；历史相似再查 BBS；已知缺陷/版本跟踪再查 Jira；版本边界/标准口径加查 Confluence；OS/厂商/外部生态加查 Tavily。输出可简洁，但必须说明证据边界 |
 | 轻量证据答复 | 用户问具体报错能否忽略、是否预期、兼容性边界、客户口径、是否影响功能；已有错误文本或截图可形成搜索词 | 简洁回答，但 ZStack 具体问题至少查 2 个关键来源；客户口径类优先 BBS/Jira，机制类优先 GitHub |
 | 最小补充信息 | 缺少版本、错误文本、对象类型、操作路径；无法形成有效搜索词 | 只问最小必要信息 |
 | 单点求证 | 用户只问源码、历史案例、官方文档或外部生态资料中的一个方向 | 只查对应来源 |
@@ -57,8 +57,25 @@ description: Evidence-first ZStack support event analysis with dynamic routing a
 - ZStack 组件、API、脚本、配置、错误文本：优先 GitHub 源码
 - 兼容性、已知问题、客户口径：优先 BBS、Jira 或 Confluence
 - OS、内核、驱动、第三方生态：优先 Tavily 或厂商文档
-- ZStack 具体事件的轻量答复也必须至少查 2 个关键来源；推荐组合为 GitHub+BBS、GitHub+Jira、BBS+Jira。只有纯外部生态问题才可优先 Tavily+厂商资料
+- ZStack 具体事件的轻量答复也必须至少查 2 个关键来源；如果问题涉及源码、机制、调用链、错误文本、类名、配置键、API、kvmagent、管理节点下发字段或代码定位，GitHub 必须是第一个关键来源。Jira/BBS/Confluence 只能补充历史和内部跟踪，不能替代 GitHub 源码查证
 - 如果用户问“哪个版本修复 / 有没有合到某版本线 / 是否回合到 4.8.x / fixVersion 是否已经发布”，不得使用轻量证据答复的 1-2 来源限制，必须进入“修复版本/回合确认”路径。
+
+### 源码优先硬约束
+
+凡是问题包含以下任一特征，必须先完成 GitHub 查证，再查询 Jira/BBS/Confluence：
+
+```text
+源码 / 代码 / 调用链 / 机制 / 实现 / API / 类名 / 方法名 / 配置键 / 下发字段 /
+kvmagent / management-server / KVMHost.java / vm_plugin.py / 报错堆栈 / NoneType / machineType / pciePortNums
+```
+
+执行要求：
+
+- 首个查证动作必须是 GitHub code/search/commit/tag/branch 或文件读取。
+- 若 GitHub MCP 不可用，必须明确写“GitHub 源码查证未完成”，并禁止输出“源码已确认”“代码逻辑确认”等结论。
+- Jira/Confluence/BBS 只能作为内部跟踪、历史案例或设计背景；不得替代源码证据。
+- 源码/版本 subagent 只允许查询 GitHub；不得查询 Jira、Confluence、BBS 或 Tavily。
+- 如果主流程已经先查了 Jira/BBS，发现问题实际是源码/机制类，必须立即切回 GitHub，不得继续扩大 Jira/Confluence 搜索。
 
 输出结构：
 
@@ -127,6 +144,7 @@ Atlassian：ATLASSIAN_AUTHORIZATION
 - 不确定时两个仓库都查
 - 只读取最小相关源码片段
 - 源码只能解释机制，不能证明客户现场实际走了该路径
+- GitHub 查证未完成时，不得用 Jira、Confluence 或 BBS 的历史描述冒充源码结论
 
 ### 官网文档查证
 
@@ -280,14 +298,14 @@ Confluence：内部文档 / 版本边界 / 标准口径
 
 ### 默认 subagent 并发策略
 
-进入“支持事件默认查证”“多方并行查证”“修复版本/回合确认”或“深查”时，如果需要同时查询 3 个及以上来源，默认先尝试使用当前 Codex 宿主暴露的 subagent 调度工具（例如 `multi_agent_v1.spawn_agent`）并发查证。不要等待用户额外说“多 agent”。
+进入“支持事件默认查证”“多方并行查证”“修复版本/回合确认”或“深查”时，如果需要同时查询 3 个及以上来源，默认先尝试发现并使用当前 Codex 宿主暴露的 subagent 调度工具（例如 `multi_agent_v1.spawn_agent`）并发查证。若宿主策略要求用户显式授权、工具未暴露或调用失败，必须明确标注未触发原因并降级为主 agent 查证；不得假装已经并发。
 
 主 agent 只负责总控、当前证据整理、问题边界、最终合并和结论约束；子 agent 只负责各自来源，不跨来源扩展。
 
 推荐并发拆分：
 
 ```text
-源码/版本 agent：GitHub 源码、commit、tag、release branch、调用链、版本差异。
+源码/版本 agent：只查 GitHub 源码、commit、tag、release branch、调用链、版本差异；禁止查询 Jira/Confluence/BBS/Tavily。
 历史案例 agent：ZStack知识社区(BBS) 相似案例、差异、可复用验证动作。
 内部跟踪 agent：Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时补 Confluence 内部口径。
 文档/外部 agent：官网文档、Confluence 文档边界、Tavily 厂商/OS/外部生态资料。
@@ -299,7 +317,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 - 两个来源以内的轻量答复，可以由主 agent 直接并行调用工具完成。
 - 子 agent 不输出内部原文、内部 URL、账号、Token、未脱敏附件或原始 MCP 载荷。
 - 主 agent 必须等待关键子 agent 结果再下最终结论；超时则标注“某来源查证未完成”，不得把未完成当成未命中。
-- 如果当前会话没有 subagent 调度工具，输出 `Subagent 状态：未触发，原因：当前会话未暴露 subagent 调度工具`，然后由主 agent 继续查证。
+- 如果当前会话没有 subagent 调度工具，输出 `Subagent 状态：未触发，原因：当前会话未暴露 subagent 调度工具 / 宿主策略未允许当前任务派发 subagent / subagent 调用失败`，然后由主 agent 继续查证。
 
 限制：
 - 只需要单一证据时，不启动多来源并行
@@ -351,13 +369,13 @@ Confluence：内部文档 / 版本边界 / 标准口径
 并且当前会话可发现并调用 subagent 调度工具，例如 `multi_agent_v1.spawn_agent`
 ```
 
-当进入默认触发条件，或用户明确要求多 agent 时，先确认当前会话是否暴露 subagent 调度工具。若宿主提供工具发现能力，必须先搜索 `subagent`、`multi agent` 或 `spawn_agent`；若已知当前工具列表中存在 `multi_agent_v1.spawn_agent` 等可调用工具，必须真实派发有界子任务。没有找到或无法调用时，不要声称已启动 subagent；由主 agent 继续完成查证，并在“证据边界”或“下一步”中说明“未触发 subagent，原因：当前会话未暴露 subagent 工具”。
+当进入默认触发条件，或用户明确要求多 agent 时，先确认当前会话是否暴露 subagent 调度工具。若宿主提供工具发现能力，必须先搜索 `subagent`、`multi agent` 或 `spawn_agent`；若已知当前工具列表中存在 `multi_agent_v1.spawn_agent` 等可调用工具，且宿主策略允许当前任务派发 subagent，必须真实派发有界子任务。没有找到、宿主策略不允许或调用失败时，不要声称已启动 subagent；由主 agent 继续完成查证，并在“证据边界”或“下一步”中说明“未触发 subagent”的具体原因。
 
 如果只是低风险直答、单点求证或两个来源以内的轻量答复，不做 subagent 工具发现，避免简单问题被额外流程拖慢。
 
 触发后主 agent 保持总控，并行派发有界任务：
 
-- 源码深查 agent：只负责 GitHub commit、tag、release branch、调用链、版本差异、机制确认。
+- 源码深查 agent：只负责 GitHub commit、tag、release branch、调用链、版本差异、机制确认；禁止查询 Jira/Confluence/BBS/Tavily。
 - 历史案例 agent：只负责 BBS 相似案例、差异、可复用验证动作。
 - 内部跟踪 agent：只负责 Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时读取 Confluence 内部口径，输出脱敏摘要。
 - 文档/外部 agent：只负责官网文档、发布说明、Tavily/厂商/OS 外部资料。
@@ -366,21 +384,21 @@ Confluence：内部文档 / 版本边界 / 标准口径
 
 ```text
 主 agent：继续整理问题、做关键路径查证和最终合并。
-源码深查 agent：不得查询 Jira/Confluence；输出 GitHub 查证词、命中 commit/tag/branch、相关文件、能/不能支持的判断。
+源码深查 agent：不得查询 Jira/Confluence/BBS/Tavily；输出 GitHub 查证词、命中 commit/tag/branch、相关文件、能/不能支持的判断。若无法访问 GitHub，必须返回“GitHub 查证未完成”，不得改查 Jira。
 历史案例 agent：不得查询 Jira/Confluence；输出 BBS 查询词、命中帖子、相似度、差异、可复用动作。
 内部跟踪 agent：不得输出内部原文和内部 URL；输出工单号、状态、影响版本、修复版本、脱敏摘要、能/不能支持的判断。
 文档/外部 agent：使用脱敏关键词；输出文档标题/厂商来源、版本边界、能/不能支持的判断。
 ```
 
-如果当前会话没有 subagent 调度工具，必须输出：
+如果当前会话没有 subagent 调度工具，或宿主策略不允许当前任务派发 subagent，必须输出：
 
 ```text
 Subagent 状态：未触发
-原因：当前会话未暴露 subagent 调度工具
+原因：当前会话未暴露 subagent 调度工具 / 宿主策略未允许当前任务派发 subagent / subagent 调用失败
 降级动作：由主 agent 继续完成 GitHub/BBS/Jira/Confluence/Tavily 查证
 ```
 
-Tavily 和官网文档暂不 agent 化，保持工具查询即可。
+文档/外部 agent 可以在 3 个及以上来源、正式根因分析、外部生态问题或发布说明查证时派发；任务范围仅限官网文档、发布说明、Tavily/厂商/OS 外部资料，不能替代 GitHub 源码 agent。
 
 ### 复测提示模板
 
