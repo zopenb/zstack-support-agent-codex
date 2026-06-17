@@ -100,7 +100,7 @@ GitHub MCP 状态：
 
 ## 源码深查 subagent 模板
 
-`agents/openai.yaml` 不会自动启动源码深查 subagent。只有用户明确要求“多 agent / 子 agent / 并行深查”，且当前 Codex 会话可发现并调用 subagent 调度工具时，才可由主 agent 显式派发源码深查 subagent。若宿主提供工具发现能力，先搜索 `subagent`、`multi agent` 或 `spawn_agent`；没有找到或无法调用时，输出“Subagent 状态：未触发”，并由主 agent 继续完成源码查证。
+`agents/openai.yaml` 不会自动启动源码深查 subagent。只有用户明确要求“多 agent / 子 agent / 并行深查”，且当前 Codex 会话可发现并调用 subagent 调度工具时，才可由主 agent 显式派发源码深查 subagent。若宿主提供工具发现能力，先搜索 `subagent`、`multi agent` 或 `spawn_agent`；若当前工具列表已明确存在 `multi_agent_v1.spawn_agent` 等可调用工具，必须真实派发有界源码深查任务。没有找到或无法调用时，输出“Subagent 状态：未触发”，并由主 agent 继续完成源码查证。
 
 当 GitHub 搜到入口但调用链没追完、版本差异需要确认、源码与现象存在缺口，才适合派发源码深查 subagent。未触发时，由主 agent 继续完成源码查证，并说明未触发原因。
 

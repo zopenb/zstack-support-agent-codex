@@ -1,8 +1,8 @@
 interface:
   display_name: "ZStack 事件分析"
-  short_description: "按需调用 ZStack 支持查证工具完成事件分析"
+  short_description: "具体 ZStack 支持事件默认主动查证"
   brand_color: "#2563EB"
-  default_prompt: "粘贴客户反馈、错误日志或截图转写，按需进行证据优先分析。"
+  default_prompt: "粘贴客户反馈、错误日志或截图转写；具体事件默认主动查 GitHub+BBS+Jira，必要时查 Confluence/Tavily。"
 
 dependencies:
   tools:
