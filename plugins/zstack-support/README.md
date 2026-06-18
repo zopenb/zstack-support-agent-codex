@@ -107,7 +107,31 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 
 Atlassian 特别注意：`ATLASSIAN_AUTHORIZATION` 要填完整 Header 值，必须包含 `Basic ` 前缀。旧环境如果还配置了 `ATLASSIAN_BASIC_AUTH=<base64>`，安装脚本会兼容迁移，但新安装不再推荐使用旧变量。
 
-### Windows 怎么录入
+### 环境配置技能怎么用
+
+`环境配置` 是专门用来配置和检查连接器变量的技能。它不会要求你把 Token、密码、Authorization 或 base64 值粘贴到聊天里，也不会在输出里打印真实密钥。
+
+常用聊天命令：
+
+```text
+zstack-support:环境配置 快照当前配置
+zstack-support:环境配置 帮我录入连接器变量
+zstack-support:环境配置 只补充缺失变量
+```
+
+使用建议：
+
+1. 先发 `zstack-support:环境配置 快照当前配置`，确认四个变量是否存在、作用域在哪里、格式是否正确。
+2. 如果缺变量，发 `zstack-support:环境配置 帮我录入连接器变量`。Codex 会打开一个可见 PowerShell 配置窗口，你在窗口里输入密钥；不要把密钥发到聊天里。
+3. 如果只想补缺失项，发 `zstack-support:环境配置 只补充缺失变量`，已有变量会保留。
+4. 窗口录入完成后，重启 Codex 或打开新线程。
+5. 再运行 `zstack-support:环境配置 快照当前配置` 和 `zstack-support:连通检查` 验证。
+
+快照输出只包含变量名、是否存在、作用域、格式检查和修复建议。录入窗口会写入 Windows 用户变量，并尽量同步到当前进程；但 MCP 工具注入通常仍需要重启 Codex 或新开线程。
+
+如果你不通过聊天技能，也可以从 marketplace 仓库根目录手动打开同一个可见配置窗口。
+
+### 手动录入环境变量
 
 推荐先用技能快照当前配置：
 
