@@ -54,13 +54,16 @@ function Find-SkillDir([string]$Name) {
 $eventDir = Find-SkillDir ([string]([char]0x4e8b) + [string]([char]0x4ef6) + [string]([char]0x5206) + [string]([char]0x6790))
 $sourceDir = Find-SkillDir ([string]([char]0x6e90) + [string]([char]0x7801) + [string]([char]0x67e5) + [string]([char]0x8bc1))
 $connectivityDir = Find-SkillDir ([string]([char]0x8fde) + [string]([char]0x901a) + [string]([char]0x68c0) + [string]([char]0x67e5))
+$envConfigDir = Find-SkillDir ([string]([char]0x73af) + [string]([char]0x5883) + [string]([char]0x914d) + [string]([char]0x7f6e))
 
 $eventSkill = Join-Path $eventDir "SKILL.md"
 $sourceSkill = Join-Path $sourceDir "SKILL.md"
 $connectivityAgent = Join-Path $connectivityDir "agents\openai.yaml"
+$envConfigAgent = Join-Path $envConfigDir "agents\openai.yaml"
 $eventAgent = Join-Path $eventDir "agents\openai.yaml"
 $sourceAgent = Join-Path $sourceDir "agents\openai.yaml"
 $template = Join-Path $eventDir "references\subagent-prompts.md"
+$snapshotScript = Join-Path $Root "scripts\snapshot-user-env.ps1"
 
 Assert-Contains $eventSkill ([regex]::Escape($sourceHard)) "event skill must keep GitHub-first source hard constraint"
 Assert-Contains $eventSkill ([regex]::Escape($firstGithub)) "event skill must require GitHub as first verification action"
@@ -71,6 +74,8 @@ Assert-Contains $template ([regex]::Escape($explicitOnly)) "subagent template mu
 Assert-Contains $eventAgent "allow_implicit_invocation:\s*true" "event skill should remain implicitly invocable"
 Assert-Contains $sourceAgent "allow_implicit_invocation:\s*true" "source skill should remain implicitly invocable"
 Assert-Contains $connectivityAgent "allow_implicit_invocation:\s*false" "connectivity skill should be explicit only"
+Assert-Contains $envConfigAgent "allow_implicit_invocation:\s*true" "environment config skill should remain implicitly invocable"
+Assert-Contains $snapshotScript "Secret values are not printed" "environment snapshot must not print secret values"
 
 $scanRoots = @(
     (Join-Path $Root "README.md"),

@@ -1,0 +1,11 @@
+interface:
+  display_name: "ZStack 环境配置"
+  short_description: "快照和录入插件 MCP 环境变量"
+  brand_color: "#2563EB"
+  default_prompt: "快照当前 GitHub、BBS、Tavily、Jira/Confluence 连接器变量配置，不输出密钥值。"
+
+dependencies:
+  tools: []
+
+policy:
+  allow_implicit_invocation: true

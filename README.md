@@ -35,6 +35,7 @@ codex plugin add zstack-support@zstack-support-local
 | 单点查证 | `这个 API 在源码里怎么走？` | 只查 GitHub 源码 |
 | 历史案例 | `有没有类似历史案例？` | 只查 BBS/Jira 等历史来源 |
 | 完整事件分析 | `升级后云主机迁移失败，帮我分析根因和下一步` | 输出完整 Intake、证据映射、多来源查证和闭环 |
+| 环境配置 | `zstack-support:环境配置 快照当前配置` | 只显示变量存在性、作用域和格式状态，不输出密钥值 |
 | 连通检查 | `zstack-support:连通检查` | 只读检查 GitHub、BBS、Tavily、Atlassian MCP |
 
 多轮追问建议继续带上技能名，例如：
@@ -102,6 +103,12 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 `ATLASSIAN_AUTHORIZATION` 必须包含 `Basic ` 前缀。旧环境如果还有 `ATLASSIAN_BASIC_AUTH=<base64>`，安装脚本会尝试迁移，但新安装只推荐使用 `ATLASSIAN_AUTHORIZATION`。
 
 ## Windows 环境变量录入
+
+推荐先用技能快照当前配置：
+
+```text
+zstack-support:环境配置 快照当前配置
+```
 
 推荐方式：从仓库根目录运行交互式脚本，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
 
