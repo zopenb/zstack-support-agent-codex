@@ -28,4 +28,4 @@ dependencies:
       url: "http://172.18.250.27:3340/mcp"
 
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false
