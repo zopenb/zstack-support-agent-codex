@@ -28,7 +28,7 @@ ZStack Support Agent（源码级分析），基于证据优先方法论，结合
 | 轻量证据答复 | 这个报错能忽略吗？怎么回复客户？ | 简洁回答，但 ZStack 具体问题至少查 2 个关键来源 |
 | 单点查证 | 这个 API 在源码里怎么走？ / 有没有类似历史案例？ | 只查对应来源 |
 | 完整事件分析 | 升级后云主机迁移失败，帮我分析根因和下一步 | 先结构化 Intake，再按需多来源查证和闭环 |
-| 环境配置 | 快照当前配置 / 帮我录入连接器变量 | 只显示变量存在性、作用域和格式状态；录入密钥时走隐藏输入脚本 |
+| 环境配置 | 快照当前配置 / 帮我录入连接器变量 | 只显示变量存在性、作用域和格式状态；录入密钥时打开可见 PowerShell 配置窗口 |
 
 多轮追问建议继续带上技能名，例如：
 
@@ -115,19 +115,19 @@ Atlassian 特别注意：`ATLASSIAN_AUTHORIZATION` 要填完整 Header 值，必
 zstack-support:环境配置 快照当前配置
 ```
 
-推荐方式：从 marketplace 仓库根目录运行交互式脚本，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
+推荐方式：从 marketplace 仓库根目录打开可见 PowerShell 配置窗口，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1
 ```
 
 如果只想补充缺失变量，保留已有变量：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1 -SkipExisting
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1 -SkipExisting
 ```
 
-也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的交互式脚本。
+也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的可见配置窗口。
 
 ```powershell
 $githubToken = '<github-token>'

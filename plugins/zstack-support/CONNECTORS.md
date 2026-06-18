@@ -131,7 +131,7 @@ codex mcp get zstack_atlassian_shared
 
 ### 开启步骤
 
-1. 设置 Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`。推荐直接运行 `plugins\zstack-support\scripts\set-user-env.ps1` 统一录入全部四个插件变量
+1. 设置 Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>`。推荐运行 `plugins\zstack-support\scripts\open-env-config-window.ps1` 打开可见 PowerShell 配置窗口，统一录入全部四个插件变量
 2. 运行插件安装脚本
 3. 重启 Codex 或打开新线程
 4. 运行 `codex mcp list`，确认 `zstack_atlassian_shared` 为 enabled

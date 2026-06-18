@@ -1,6 +1,6 @@
 {
   "name": "zstack-support",
-  "version": "2.9.6+codex.20260618103540",
+  "version": "2.9.6+codex.20260618105826",
   "description": "Evidence-first ZStack support workbench with GitHub-first source verification, support-event routing, connector environment setup snapshots, explicit subagent deep-dive templates, BBS/Jira historical tracking, external web search, read-only Confluence reference, and closure workflows.",
   "author": {
     "name": "ZStack Support Team"

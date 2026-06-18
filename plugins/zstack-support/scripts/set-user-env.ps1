@@ -99,11 +99,13 @@ $names = @(
     "ATLASSIAN_AUTHORIZATION"
 )
 
-foreach ($name in $names) {
+$rows = foreach ($name in $names) {
     [pscustomobject]@{
         Name = $name
         Present = -not [string]::IsNullOrWhiteSpace((Get-EnvValue $name))
     }
-} | Format-Table -AutoSize
+}
+
+$rows | Format-Table -AutoSize
 
 Write-Host "Restart Codex or open a new thread after changing user environment variables."

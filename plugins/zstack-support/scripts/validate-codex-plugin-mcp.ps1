@@ -3,7 +3,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$config = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+$resolvedPath = (Resolve-Path -LiteralPath $Path).ProviderPath
+$configDir = Split-Path -Parent $resolvedPath
+$config = Get-Content -LiteralPath $resolvedPath -Raw | ConvertFrom-Json
 $servers = $config.mcpServers
 
 if ($null -eq $servers) {
@@ -94,12 +96,12 @@ foreach ($field in @("command", "args", "cwd", "env", "startup_timeout_sec", "to
     }
 }
 foreach ($legacyScript in @("scripts\zstack-atlassian-mcp.js", "scripts\zstack-atlassian-mcp.ps1")) {
-    if (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $Path) $legacyScript)) {
+    if (Test-Path -LiteralPath (Join-Path $configDir $legacyScript)) {
         throw "legacy local Atlassian adapter script must be removed: $legacyScript"
     }
 }
 
-$raw = Get-Content -LiteralPath $Path -Raw
+$raw = Get-Content -LiteralPath $resolvedPath -Raw
 $allowedRefs = @(
     'ATLASSIAN_AUTHORIZATION'
 )
@@ -111,4 +113,4 @@ if ($rawWithoutAllowedRefs -match 'github_pat_|Basic Ym|Bearer github_pat|\$\{')
     throw "MCP config contains a concrete secret or unsupported variable interpolation"
 }
 
-Write-Output "Codex plugin MCP config OK: $Path"
+Write-Output "Codex plugin MCP config OK: $resolvedPath"

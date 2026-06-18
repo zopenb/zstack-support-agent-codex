@@ -122,7 +122,7 @@ if ($legacyBasic.Count -gt 0) {
 }
 
 Write-Host ""
-Write-Host "To configure interactively without printing secrets, run:"
-Write-Host "powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1"
+Write-Host "To open a visible configuration window without printing secrets, run:"
+Write-Host "powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1"
 Write-Host ""
 Write-Host "After changes, restart Codex or open a new thread before running zstack-support:连通检查."

@@ -110,19 +110,19 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 zstack-support:环境配置 快照当前配置
 ```
 
-推荐方式：从仓库根目录运行交互式脚本，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
+推荐方式：从仓库根目录打开可见 PowerShell 配置窗口，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1
 ```
 
 如果只想补充缺失变量，保留已有变量：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1 -SkipExisting
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1 -SkipExisting
 ```
 
-也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的交互式脚本。
+也可以使用下面的一次性 PowerShell 模板。把尖括号内容替换成自己的值后执行；注意这类命令会进入本机命令历史，公共电脑上更推荐使用上面的可见配置窗口。
 
 ```powershell
 $githubToken = '<github-token>'

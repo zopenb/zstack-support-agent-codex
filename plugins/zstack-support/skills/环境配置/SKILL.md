@@ -26,6 +26,12 @@ Jira/Confluence 只使用 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:passwo
 powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\snapshot-user-env.ps1
 ```
 
+如果当前工作目录不是 marketplace 仓库根目录，直接使用本技能所在插件目录下的脚本，例如：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File '<当前插件根目录>\scripts\snapshot-user-env.ps1'
+```
+
 输出只包含：
 
 - 变量名
@@ -38,19 +44,25 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scr
 
 ## 引导录入配置
 
-当用户要“配置变量 / 录入 token / 初始化连接器”时，说明不要在聊天里粘贴密钥，并运行隐藏输入脚本：
+当用户要“配置变量 / 录入 token / 初始化连接器”时，说明不要在聊天里粘贴密钥。Codex 桌面后台终端可能无法交互输入，因此默认打开一个可见 PowerShell 窗口：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1
+```
+
+如果当前工作目录不是 marketplace 仓库根目录，直接使用本技能所在插件目录下的脚本，例如：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File '<当前插件根目录>\scripts\open-env-config-window.ps1'
 ```
 
 如果用户只想补齐缺失项，运行：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\set-user-env.ps1 -SkipExisting
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\open-env-config-window.ps1 -SkipExisting
 ```
 
-脚本会用隐藏输入接收密钥，写入 Windows 用户变量和当前进程变量。
+可见窗口中的脚本会用隐藏输入接收密钥，写入 Windows 用户变量和当前进程变量。不要直接在 Codex 后台 PTY 里运行 `set-user-env.ps1`，除非确认当前终端可输入。
 
 ## 配置后动作
 
