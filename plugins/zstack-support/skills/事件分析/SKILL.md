@@ -156,7 +156,7 @@ Atlassian：ATLASSIAN_AUTHORIZATION
 
 适用于用户询问历史案例、相似症状、可复用验证动作。
 
-使用脱敏关键词搜索，优先选择 1-3 个相关帖子获取详情。BBS 结果属于 E3 历史参考，不能单独关闭当前事件。
+面向公司内部同事使用时，可以保留 BBS 帖子标题、帖子编号和可点击链接。优先选择 1-3 个相关帖子获取详情；如果 MCP 返回 `tid`，必须构造完整链接 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`；如果 MCP 只返回 `forum.php?mod=viewthread&tid=<tid>` 这种相对路径，也必须补全为 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`。输出必须使用 Markdown 链接，例如 `[导入带 addon 的授权报错](http://bbs.zstack.io/forum.php?mod=viewthread&tid=14121)`。禁止输出不可点击的相对链接或只有 `tid=14121` 的伪链接。BBS 结果属于 E3 历史参考，不能单独关闭当前事件。不要输出 BBS 账号、Authorization、原始 MCP 载荷或客户原始附件。
 
 ### Tavily 外部 Web/厂商论坛参考
 
@@ -182,7 +182,7 @@ Atlassian：ATLASSIAN_AUTHORIZATION
 查询策略：
 - 优先使用明确编号查询，其次使用错误文本、组件名、版本号、OS/内核/存储/网络关键词组合查询
 - 先查 1-3 条最相关结果，不做大范围扫库
-- 只记录工单号、标题脱敏摘要、状态、影响版本、修复版本、组件、可公开结论
+- 记录工单号、标题摘要、状态、影响版本、修复版本、组件和可公开结论；工单号必须输出为完整可点击 Markdown 链接，例如 `[TIC-5786](http://jira.zstack.io/browse/TIC-5786)`。如果只拿到 `TIC-5786` / `BUG-123` / `SUG-123`，必须按 `http://jira.zstack.io/browse/<KEY>` 构造完整 URL；禁止输出只有编号但目标不完整的链接。
 - Jira 结果用于确认内部跟踪状态，不能替代当前客户现场证据
 
 输出字段：
@@ -191,6 +191,7 @@ Atlassian：ATLASSIAN_AUTHORIZATION
 Jira 参考：
 查询词：
 命中工单：
+链接：必须是完整 URL，例如 `http://jira.zstack.io/browse/TIC-5786`
 状态：
 影响版本：
 修复版本：
@@ -214,7 +215,7 @@ Jira 参考：
 查询策略：
 - 使用产品名、功能名、版本号、错误文本、OS/第三方组件关键词组合查询
 - 优先读取标题、更新时间、空间/栏目摘要和最小相关片段
-- 只输出脱敏摘要、适用版本、版本边界、可公开行动建议
+- 输出文档标题摘要、适用版本、版本边界、可公开行动建议；如果 MCP 返回 URL，必须用 Markdown 链接输出文档标题
 - Confluence 结果用于补充内部说明，不能单独定当前客户根因
 
 输出字段：
@@ -223,6 +224,7 @@ Jira 参考：
 Confluence 参考：
 查询词：
 命中文档：
+链接：必须是完整 URL；如果无法构造完整 URL，则只输出标题摘要，不伪造链接
 适用版本：
 版本边界：
 能支持的判断：
@@ -232,7 +234,7 @@ Confluence 参考：
 
 ### Atlassian 安全边界
 
-Atlassian 只能作为只读内部参考。不得创建、更新或评论 Jira/Confluence 内容；不得输出内部 URL、账号、Token、原始页面内容、原始工单描述、评论原文或未脱敏附件。面向客户时只输出脱敏摘要、工单号、状态、版本边界和可公开行动建议。
+Atlassian 只能作为只读内部参考。面向公司内部同事时，可以输出 Jira/TIC/SUG/BUG 编号、标题摘要、状态、版本字段和可点击 Markdown 链接。不得创建、更新或评论 Jira/Confluence 内容；不得输出账号、Token、Authorization、原始 MCP 载荷、原始页面正文、原始工单描述、评论原文或附件。面向客户时只输出脱敏摘要、工单号、状态、版本边界和可公开行动建议，不输出内部链接。
 
 Jira 与 Confluence 分工：
 - Jira 优先回答“有没有缺陷/需求跟踪、状态如何、影响/修复版本是什么”
@@ -307,7 +309,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 ```text
 源码/版本 agent：只查 GitHub 源码、commit、tag、release branch、调用链、版本差异；禁止查询 Jira/Confluence/BBS/Tavily。
 历史案例 agent：ZStack知识社区(BBS) 相似案例、差异、可复用验证动作。
-内部跟踪 agent：Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时补 Confluence 内部口径。
+内部跟踪 agent：Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时补 Confluence 内部口径；输出编号、标题摘要和可点击链接。
 文档/外部 agent：官网文档、Confluence 文档边界、Tavily 厂商/OS/外部生态资料。
 ```
 
@@ -315,7 +317,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 
 - 只有用户显式要求多 agent / 并行深查，且任务可拆分时才派发 subagent。
 - 两个来源以内的轻量答复，可以由主 agent 直接并行调用工具完成。
-- 子 agent 不输出内部原文、内部 URL、账号、Token、未脱敏附件或原始 MCP 载荷。
+- 子 agent 可以输出 BBS/Jira/Confluence 的编号、标题摘要和可点击链接；不得输出内部原文、账号、Token、未脱敏附件或原始 MCP 载荷。
 - 主 agent 必须等待关键子 agent 结果再下最终结论；超时则标注“某来源查证未完成”，不得把未完成当成未命中。
 - 如果当前会话没有 subagent 调度工具，输出 `Subagent 状态：未触发，原因：当前会话未暴露 subagent 调度工具 / 宿主策略未允许当前任务派发 subagent / subagent 调用失败`，然后由主 agent 继续查证。
 
@@ -325,7 +327,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 - 已有证据足够支撑当前回答时，不继续扩展来源
 - 所有来源必须只读
 - 不输出 Token、Authorization、原始 MCP 载荷或未过滤的提供者输出
-- Jira/Confluence 结果不得直接向客户输出原文、评论、附件或内部 URL
+- Jira/Confluence 结果不得直接向客户输出原文、评论、附件或内部链接；内部同事协作场景可以输出可点击链接
 
 所有来源返回统一证据块：
 
@@ -333,6 +335,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 来源：
 查询词：
 命中内容：
+链接：BBS 必须使用 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`；Jira/TIC/SUG/BUG 必须使用 `http://jira.zstack.io/browse/<KEY>`；无法构造完整 URL 时留空并说明
 相关性：高 / 中 / 低
 能支持的判断：
 不能支持的判断：
@@ -379,7 +382,7 @@ Confluence：内部文档 / 版本边界 / 标准口径
 
 - 源码深查 agent：只负责 GitHub commit、tag、release branch、调用链、版本差异、机制确认；禁止查询 Jira/Confluence/BBS/Tavily。
 - 历史案例 agent：只负责 BBS 相似案例、差异、可复用验证动作。
-- 内部跟踪 agent：只负责 Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时读取 Confluence 内部口径，输出脱敏摘要。
+- 内部跟踪 agent：只负责 Jira 缺陷/需求状态、影响版本、修复版本、关联项；必要时读取 Confluence 内部口径，输出标题摘要、编号和可点击链接。
 - 文档/外部 agent：只负责官网文档、发布说明、Tavily/厂商/OS 外部资料。
 
 派发要求：
@@ -387,8 +390,8 @@ Confluence：内部文档 / 版本边界 / 标准口径
 ```text
 主 agent：继续整理问题、做关键路径查证和最终合并。
 源码深查 agent：不得查询 Jira/Confluence/BBS/Tavily；输出 GitHub 查证词、命中 commit/tag/branch、相关文件、能/不能支持的判断。若无法访问 GitHub，必须返回“GitHub 查证未完成”，不得改查 Jira。
-历史案例 agent：不得查询 Jira/Confluence；输出 BBS 查询词、命中帖子、相似度、差异、可复用动作。
-内部跟踪 agent：不得输出内部原文和内部 URL；输出工单号、状态、影响版本、修复版本、脱敏摘要、能/不能支持的判断。
+历史案例 agent：不得查询 Jira/Confluence；输出 BBS 查询词、命中帖子、链接、相似度、差异、可复用动作。
+内部跟踪 agent：不得输出内部原文；输出工单号、完整链接、状态、影响版本、修复版本、标题摘要、能/不能支持的判断。Jira/TIC/SUG/BUG 链接必须按 `http://jira.zstack.io/browse/<KEY>` 构造。
 文档/外部 agent：使用脱敏关键词；输出文档标题/厂商来源、版本边界、能/不能支持的判断。
 ```
 
@@ -407,7 +410,7 @@ Subagent 状态：未触发
 普通模式复测：
 
 ```text
-使用 @事件分析：镜像存储可用容量百分比<10%，ZStack-backup，4.8.0 备份服务器告警却提示镜像存储空间不够，哪个版本修复了？
+使用 @ZStackSupport:事件分析：镜像存储可用容量百分比<10%，ZStack-backup，4.8.0 备份服务器告警却提示镜像存储空间不够，哪个版本修复了？
 期望：进入“修复版本/回合确认”；必须输出 Jira/内部跟踪、GitHub 提交/分支查证、指定版本线查证。
 失败层：如果未查 GitHub，标注“GitHub 未查”；如果只靠 Jira/BBS 下结论，标注“结论越界”。
 ```
@@ -646,5 +649,5 @@ notes.md 动作：新建 / 追加 / 交叉引用 / 跳过
 2. 不猜测：证据不足时明确说缺失什么，不编造根因。
 3. 安全第一：客户环境命令默认只读，高风险操作必须授权。
 4. 标签严格：每个重要断言必须有证据级别，E0-E2 不能作为最终根因。
-5. 不泄露：不输出凭证、内部 URL、原始 MCP 载荷、客户敏感数据。
-6. 内部系统边界：仅允许通过插件声明的只读共享远端 `zstack_atlassian_shared` MCP 查询 Jira/Confluence 作为内部参考；禁止使用旧的 `zstack_atlassian` 本机适配器、`support_archive`、`support_sql_analyst`、内部支持归档、SQL 分析、内部 GitLab、CRM、私有问题追踪器、内部客户数据库、私有知识库、内部 URL、原始 MCP 载荷、未过滤的提供者输出。
+5. 不泄露：不输出凭证、账号、原始 MCP 载荷、客户敏感数据、原始工单正文、评论原文或附件。
+6. 内部系统边界：仅允许通过插件声明的只读共享远端 `zstack_atlassian_shared` MCP 查询 Jira/Confluence 作为内部参考；允许在内部协作输出中展示 BBS/Jira/Confluence 编号、标题摘要和可点击链接；禁止使用旧的 `zstack_atlassian` 本机适配器、`support_archive`、`support_sql_analyst`、内部支持归档、SQL 分析、内部 GitLab、CRM、私有问题追踪器、内部客户数据库、私有知识库、原始 MCP 载荷、未过滤的提供者输出。

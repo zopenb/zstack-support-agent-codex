@@ -88,8 +88,8 @@ kvmagent / management-server / KVMHost.java / vm_plugin.py / 报错堆栈 / None
 | ZStack知识社区(BBS) | 历史相似案例、相似症状、可复用验证动作 | 不能单独作为当前事件根因 |
 | 官网文档 | 配置含义、官方限制、操作步骤、产品功能边界 | 不能替代当前现场证据 |
 | Tavily | Linux、Windows、Red Hat、Ubuntu、kernel、QEMU/KVM、libvirt、Ceph、GPU、vLLM/SGLang 等外部生态问题 | 只能使用脱敏查询词，不能单独闭环 |
-| Jira | 已知缺陷、需求编号、修复状态、影响版本、修复版本、组件归属、研发结论 | 只读内部参考，不能直接向客户输出原文、评论、附件或内部 URL |
-| Confluence | 内部说明、版本边界、操作规范、发布说明补充、兼容性矩阵、产品口径 | 只读内部参考，不能直接向客户输出原文、附件或内部 URL |
+| Jira | 已知缺陷、需求编号、修复状态、影响版本、修复版本、组件归属、研发结论 | 只读内部参考；内部同事协作可输出编号、标题摘要和可点击链接，不能直接向客户输出原文、评论、附件或内部链接 |
+| Confluence | 内部说明、版本边界、操作规范、发布说明补充、兼容性矩阵、产品口径 | 只读内部参考；内部同事协作可输出文档标题摘要和可点击链接，不能直接向客户输出原文、附件或内部链接 |
 
 ## 日志路径路由
 
@@ -191,7 +191,7 @@ GitHub 提交/分支查证：
 | 主 agent 深查 | subagent 工具不可用、任务过小不可拆、或只需要 1-2 个来源 | 当前主 agent 完成查证、合并和边界说明 |
 | 源码/版本 subagent | GitHub 搜到入口但调用链没追完；版本差异需要确认；修复版本/回合确认需要 commit/tag/branch | 只输出 GitHub commit、tag、release branch、调用链、关键分支、版本差异、机制边界；不得查询 Jira/Confluence/BBS/Tavily |
 | 历史案例 subagent | BBS 命中过多；需要筛选相似度；历史案例之间结论冲突 | BBS 相似案例排序、差异、可复用验证动作 |
-| 内部跟踪 subagent | 需要 Jira 缺陷/需求、影响版本、修复版本、关联项，或 Confluence 内部口径 | Jira/Confluence 脱敏摘要、状态、版本边界、能/不能支持的判断 |
+| 内部跟踪 subagent | 需要 Jira 缺陷/需求、影响版本、修复版本、关联项，或 Confluence 内部口径 | Jira/Confluence 编号、标题摘要、可点击链接、状态、版本边界、能/不能支持的判断 |
 | 文档/外部 subagent | 需要官网文档、发布说明、Tavily/厂商/OS 外部资料 | 文档来源、外部资料、版本边界、能/不能支持的判断 |
 
 文档/外部 agent 可以在 3 个及以上来源、正式根因分析、外部生态问题或发布说明查证时派发；任务范围仅限官网文档、发布说明、Tavily/厂商/OS 外部资料，不能替代 GitHub 源码 agent。
@@ -214,7 +214,7 @@ GitHub 提交/分支查证：
 - 主 agent 保持总控，继续整理问题、关键路径查证和最终合并。
 - 源码/版本 subagent 只查 GitHub，不查 Jira/Confluence/BBS/Tavily；如果 GitHub 不可用，只能返回“GitHub 查证未完成”，不得改查 Jira。
 - 历史案例 subagent 只查 BBS，不查 Jira/Confluence。
-- 内部跟踪 subagent 只查 Jira/Confluence，不输出内部原文和内部 URL。
+- 内部跟踪 subagent 只查 Jira/Confluence；可以输出编号、标题摘要和可点击链接，不输出内部原文、评论、附件、账号、Token 或原始 MCP 载荷。
 - 文档/外部 subagent 使用脱敏关键词查询官网文档、发布说明或 Tavily。
 - 子 agent 输出必须使用统一证据块，并说明不能支持的判断。
 
@@ -257,6 +257,7 @@ Subagent 状态：未触发
 来源：
 查询词：
 命中内容：
+链接：BBS 必须使用 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`；Jira/TIC/SUG/BUG 必须使用 `http://jira.zstack.io/browse/<KEY>`；无法构造完整 URL 时留空并说明
 相关性：高 / 中 / 低
 能支持的判断：
 不能支持的判断：
@@ -300,9 +301,9 @@ Jira/Confluence 必须通过插件声明的共享远端 `zstack_atlassian_shared
 
 输出限制：
 
-- Jira 只输出脱敏摘要、工单号、状态、影响版本、修复版本、组件、可公开行动建议。
-- Confluence 只输出脱敏摘要、适用版本、版本边界、可公开行动建议。
-- 不输出内部 URL、账号、Token、原始页面内容、原始工单描述、评论原文或未脱敏附件。
+- Jira 输出工单号、Markdown 链接、标题摘要、状态、影响版本、修复版本、组件、可公开行动建议。Jira/TIC/SUG/BUG 链接必须是完整 URL，格式为 `http://jira.zstack.io/browse/<KEY>`。
+- Confluence 输出文档标题摘要、Markdown 链接、适用版本、版本边界、可公开行动建议。
+- 不输出账号、Token、Authorization、原始页面内容、原始工单描述、评论原文、附件或原始 MCP 载荷。
 - 若 Jira/Confluence 与公开源码、BBS 或文档结论冲突，标注“来源冲突”，不要直接覆盖当前分析。
 
 ## 公开标签

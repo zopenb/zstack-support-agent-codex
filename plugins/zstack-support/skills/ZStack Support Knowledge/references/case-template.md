@@ -122,13 +122,14 @@ case-directory/
 - 仓库、手册或页面：
 - Ref、版本或页面日期：
 - 路径或章节：
+- 链接：BBS 使用 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`；Jira/TIC/SUG/BUG 使用 `http://jira.zstack.io/browse/<KEY>`
 - 查询词：
 - 机制或相似性摘要：
 - 证据边界：
 - 当前案例仍需验证：
 ```
 
-Jira/Confluence 参考条目必须脱敏，禁止记录内部 URL、账号、Token、原始页面内容、原始工单描述、评论原文或未脱敏附件。
+Jira/Confluence/BBS 参考条目允许记录编号、标题摘要和可点击链接。禁止记录账号、Token、Authorization、原始页面内容、原始工单描述、评论原文或未脱敏附件。
 
 ## 统一证据块
 
@@ -138,6 +139,7 @@ Jira/Confluence 参考条目必须脱敏，禁止记录内部 URL、账号、Tok
 - 来源：
 - 查询词：
 - 命中内容：
+- 链接：必须是完整 URL；无法构造时留空并说明
 - 相关性：高 / 中 / 低
 - 能支持的判断：
 - 不能支持的判断：

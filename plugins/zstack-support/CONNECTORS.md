@@ -23,7 +23,7 @@
 1. 设置 Windows 用户或机器环境变量 `GITHUB_MCP_TOKEN`
 2. 重启 Codex 或打开新线程
 3. 运行 `codex mcp list`，确认 `github` 为 enabled
-4. 运行 `zstack-support:连通检查`
+4. 运行 `ZStackSupport:连通检查`
 
 ### 认证方式
 
@@ -88,7 +88,7 @@ ZSTACK_BBS_AUTHORIZATION=Basic <base64(username:password)>
 1. 设置本机环境变量 `TAVILY_HIKARI_TOKEN`
 2. 重启 Codex 或打开新线程
 3. 运行 `codex mcp list`，确认 `tavily_hikari` 为 enabled
-4. 运行 `zstack-support:连通检查`
+4. 运行 `ZStackSupport:连通检查`
 
 ### 证据边界
 
@@ -135,11 +135,11 @@ codex mcp get zstack_atlassian_shared
 2. 运行插件安装脚本
 3. 重启 Codex 或打开新线程
 4. 运行 `codex mcp list`，确认 `zstack_atlassian_shared` 为 enabled
-5. 运行 `zstack-support:连通检查`
+5. 运行 `ZStackSupport:连通检查`
 
 ### 已配置但未注入时怎么定位
 
-如果 `zstack-support:连通检查` 显示：
+如果 `ZStackSupport:连通检查` 显示：
 
 ```text
 第 2 步（共享远端配置）：通过
@@ -166,6 +166,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scr
 ### 证据边界
 
 - Atlassian 查询只能用于内部参考，不直接面向客户转述原文
-- 只能输出脱敏后的工单号、标题摘要、状态、版本边界和可公开行动建议
+- 面向公司内部同事时，可以输出 Jira/TIC/SUG/BUG 编号、标题摘要、状态、版本边界和可点击 Markdown 链接
+- Jira/TIC/SUG/BUG 链接必须使用完整格式 `http://jira.zstack.io/browse/<KEY>`；BBS 帖子链接必须使用完整格式 `http://bbs.zstack.io/forum.php?mod=viewthread&tid=<tid>`；不得输出相对链接或只有 tid/key 的伪链接
 - 不创建、不更新、不评论 Jira/Confluence 内容
-- 不输出内部 URL、账号、Token、原始页面内容、原始工单描述或未脱敏附件
+- 不输出账号、Token、Authorization、原始页面内容、原始工单描述、评论原文或未脱敏附件
