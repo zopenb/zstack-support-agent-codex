@@ -1,5 +1,5 @@
 ---
-name: 脱敏检查
+name: "ZStackSupport:脱敏检查"
 description: Review documents or case summaries for channel-safe sharing. Checks for secrets, internal URLs, raw customer data, and unsupported claims.
 ---
 

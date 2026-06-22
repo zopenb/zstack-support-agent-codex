@@ -44,22 +44,29 @@ function Find-SkillDir([string]$Name) {
     $skillsRoot = Join-Path $Root "skills"
     foreach ($skillFile in Get-ChildItem -LiteralPath $skillsRoot -Recurse -Filter "SKILL.md") {
         $text = Read-Text $skillFile.FullName
-        if ($text -match "(?m)^name:\s*$([regex]::Escape($Name))\s*$") {
+        if ($text -match "(?m)^name:\s*[""']?$([regex]::Escape($Name))[""']?\s*$") {
             return $skillFile.Directory.FullName
         }
     }
     throw "Skill '$Name' not found under $skillsRoot"
 }
 
-$eventDir = Find-SkillDir ([string]([char]0x4e8b) + [string]([char]0x4ef6) + [string]([char]0x5206) + [string]([char]0x6790))
-$sourceDir = Find-SkillDir ([string]([char]0x6e90) + [string]([char]0x7801) + [string]([char]0x67e5) + [string]([char]0x8bc1))
-$connectivityDir = Find-SkillDir ([string]([char]0x8fde) + [string]([char]0x901a) + [string]([char]0x68c0) + [string]([char]0x67e5))
-$envConfigDir = Find-SkillDir ([string]([char]0x73af) + [string]([char]0x5883) + [string]([char]0x914d) + [string]([char]0x7f6e))
+$prefix = "ZStackSupport:"
+$eventDir = Find-SkillDir ($prefix + [string]([char]0x4e8b) + [string]([char]0x4ef6) + [string]([char]0x5206) + [string]([char]0x6790))
+$sourceDir = Find-SkillDir ($prefix + [string]([char]0x6e90) + [string]([char]0x7801) + [string]([char]0x67e5) + [string]([char]0x8bc1))
+$connectivityDir = Find-SkillDir ($prefix + [string]([char]0x8fde) + [string]([char]0x901a) + [string]([char]0x68c0) + [string]([char]0x67e5))
+$envConfigDir = Find-SkillDir ($prefix + [string]([char]0x73af) + [string]([char]0x5883) + [string]([char]0x914d) + [string]([char]0x7f6e))
+$handoffDir = Find-SkillDir ($prefix + [string]([char]0x4ea4) + [string]([char]0x63a5) + [string]([char]0x6458) + [string]([char]0x8981))
+$redactionDir = Find-SkillDir ($prefix + [string]([char]0x8131) + [string]([char]0x654f) + [string]([char]0x68c0) + [string]([char]0x67e5))
+$knowledgeDir = Find-SkillDir ($prefix + [string]([char]0x77e5) + [string]([char]0x8bc6) + [string]([char]0x5e93))
 
 $eventSkill = Join-Path $eventDir "SKILL.md"
 $sourceSkill = Join-Path $sourceDir "SKILL.md"
 $connectivityAgent = Join-Path $connectivityDir "agents\openai.yaml"
 $envConfigAgent = Join-Path $envConfigDir "agents\openai.yaml"
+$handoffAgent = Join-Path $handoffDir "agents\openai.yaml"
+$redactionAgent = Join-Path $redactionDir "agents\openai.yaml"
+$knowledgeAgent = Join-Path $knowledgeDir "agents\openai.yaml"
 $eventAgent = Join-Path $eventDir "agents\openai.yaml"
 $sourceAgent = Join-Path $sourceDir "agents\openai.yaml"
 $template = Join-Path $eventDir "references\subagent-prompts.md"
@@ -75,6 +82,10 @@ Assert-Contains $eventAgent "allow_implicit_invocation:\s*true" "event skill sho
 Assert-Contains $sourceAgent "allow_implicit_invocation:\s*true" "source skill should remain implicitly invocable"
 Assert-Contains $connectivityAgent "allow_implicit_invocation:\s*false" "connectivity skill should be explicit only"
 Assert-Contains $envConfigAgent "allow_implicit_invocation:\s*true" "environment config skill should remain implicitly invocable"
+foreach ($agentFile in @($eventAgent, $sourceAgent, $connectivityAgent, $envConfigAgent, $handoffAgent, $redactionAgent, $knowledgeAgent)) {
+    Assert-Contains $agentFile 'display_name:\s*"ZStackSupport:' "skill display name should use the ZStackSupport prefix"
+    Assert-NotContains $agentFile 'display_name:\s*"ZStackSupport:ZStackSupport:' "skill display name should not duplicate the ZStackSupport prefix"
+}
 Assert-Contains $snapshotScript "Secret values are not printed" "environment snapshot must not print secret values"
 
 $scanRoots = @(

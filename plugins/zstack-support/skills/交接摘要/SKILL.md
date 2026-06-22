@@ -1,5 +1,5 @@
 ---
-name: 交接摘要
+name: "ZStackSupport:交接摘要"
 description: Generate a channel-safe handoff summary from current case analysis results.
 ---
 
@@ -37,6 +37,6 @@ description: Generate a channel-safe handoff summary from current case analysis 
 4. **行动建议必须安全**：所有推荐的下一步行动必须是只读或客户安全的
 5. **闭环决策一致**：交接文档中的闭环决策必须与当前分析结果一致
 
-如当前事件尚未进行分析，先使用 `@事件分析` 完成分析，再生成交接文档。
+如当前事件尚未进行分析，先使用 `@ZStackSupport:事件分析` 完成分析，再生成交接文档。
 
 完整安全策略参考 [ZStack Support Knowledge](../ZStack%20Support%20Knowledge/SKILL.md)。

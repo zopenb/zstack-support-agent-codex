@@ -1,5 +1,5 @@
 ---
-name: 事件分析
+name: "ZStackSupport:事件分析"
 description: Evidence-first ZStack support event analysis with dynamic routing across direct answers, targeted verification, multi-source checks, and closure workflows.
 ---
 
@@ -37,7 +37,7 @@ description: Evidence-first ZStack support event analysis with dynamic routing a
 如果当前 Codex 宿主没有再次触发本技能，插件无法强制接管普通对话。为降低漏触发风险，首次分析结束时在“下一步”中提示：
 
 ```text
-后续追问请继续在本线程使用 `@事件分析` 或 `zstack-support:事件分析`，并保留上一轮问题上下文。
+后续追问请继续在本线程使用 `@ZStackSupport:事件分析` 或 `ZStackSupport:事件分析`，并保留上一轮问题上下文。
 ```
 
 如果用户已经重新指定本技能，严禁把续问当成全新问题从零开始；先复用上一轮上下文，再补查缺口。
@@ -597,7 +597,7 @@ notes.md 动作：新建 / 追加 / 交叉引用 / 跳过
 
 分析完成后提示：
 
-> 分析完成。如需生成交接文档，请使用 `@交接摘要`。如需检查输出是否可安全分享，请使用 `@脱敏检查`。
+> 分析完成。如需生成交接文档，请使用 `@ZStackSupport:交接摘要`。如需检查输出是否可安全分享，请使用 `@ZStackSupport:脱敏检查`。
 
 ### 9. 开源社区支持引导
 

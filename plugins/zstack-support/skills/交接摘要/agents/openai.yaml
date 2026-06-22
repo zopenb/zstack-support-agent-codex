@@ -1,0 +1,11 @@
+interface:
+  display_name: "ZStackSupport:交接摘要"
+  short_description: "从当前分析结果生成渠道安全交接文档"
+  brand_color: "#2563EB"
+  default_prompt: "从当前事件分析结果生成渠道安全的交接摘要。"
+
+dependencies:
+  tools: []
+
+policy:
+  allow_implicit_invocation: true

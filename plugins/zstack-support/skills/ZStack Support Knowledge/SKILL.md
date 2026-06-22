@@ -1,5 +1,5 @@
 ---
-name: ZStack Support Knowledge
+name: "ZStackSupport:知识库"
 description: Internal knowledge base for ZStack support workflow methodology, case templates, and security policy. Referenced by other skills, not directly invoked by users.
 ---
 

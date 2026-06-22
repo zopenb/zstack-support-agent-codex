@@ -1,5 +1,5 @@
 ---
-name: 连通检查
+name: "ZStackSupport:连通检查"
 description: Diagnose GitHub MCP, ZStack Knowledge Community (BBS) MCP, Tavily MCP, and Atlassian MCP connectivity status.
 ---
 

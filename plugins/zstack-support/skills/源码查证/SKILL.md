@@ -1,5 +1,5 @@
 ---
-name: 源码查证
+name: "ZStackSupport:源码查证"
 description: Targeted ZStack public source lookup on GitHub for mechanisms, APIs, configurations, errors, and call paths.
 ---
 
@@ -15,7 +15,7 @@ description: Targeted ZStack public source lookup on GitHub for mechanisms, APIs
 - 需要查类名、方法名、错误文本、日志关键词、配置键或模块路径
 - 需要解释产品机制、调用链、版本差异或代码边界
 
-如果用户要求完整事件分析、根因、闭环或交接，转用 `@事件分析`。
+如果用户要求完整事件分析、根因、闭环或交接，转用 `@ZStackSupport:事件分析`。
 
 ## 默认目标仓库
 
@@ -37,7 +37,7 @@ GitHub MCP 状态：结构化查询成功 / MCP 查询未完成 / 未配置
 
 如果不可用，提示：
 
-> GitHub MCP 未连接。请设置 Windows 环境变量 `GITHUB_MCP_TOKEN`，重启 Codex 或打开新线程后重试。如需排查连通性，使用 `@连通检查`。
+> GitHub MCP 未连接。请设置 Windows 环境变量 `GITHUB_MCP_TOKEN`，重启 Codex 或打开新线程后重试。如需排查连通性，使用 `@ZStackSupport:连通检查`。
 
 ## 输入
 
@@ -77,7 +77,7 @@ GitHub MCP 状态：结构化查询成功 / MCP 查询未完成 / 未配置
 
 这些补充来源只作为参考，不能证明客户环境实际行为。
 
-Jira/Confluence 不属于 `@源码查证` 的默认补充来源。如果用户需要 Jira 已知缺陷、Confluence 设计口径或完整事件闭环，应转回 `@事件分析`，并在输出中明确 GitHub 源码查证结果与内部参考分开。
+Jira/Confluence 不属于 `@ZStackSupport:源码查证` 的默认补充来源。如果用户需要 Jira 已知缺陷、Confluence 设计口径或完整事件闭环，应转回 `@ZStackSupport:事件分析`，并在输出中明确 GitHub 源码查证结果与内部参考分开。
 
 ## 输出格式
 

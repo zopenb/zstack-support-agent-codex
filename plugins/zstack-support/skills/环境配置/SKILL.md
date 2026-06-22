@@ -1,5 +1,5 @@
 ---
-name: 环境配置
+name: "ZStackSupport:环境配置"
 description: Configure and inspect ZStack Support Agent Windows user environment variables for MCP connectors. Use when users ask to set up, snapshot, diagnose, or verify GITHUB_MCP_TOKEN, ZSTACK_BBS_AUTHORIZATION, TAVILY_HIKARI_TOKEN, ATLASSIAN_AUTHORIZATION, Jira/Confluence auth, GitHub token, BBS auth, Tavily token, or plugin connector variables through chat.
 ---
 
@@ -69,7 +69,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scr
 配置或修改变量后，提示用户：
 
 ```text
-请重启 Codex 或打开新线程，再运行 zstack-support:连通检查。
+请重启 Codex 或打开新线程，再运行 ZStackSupport:连通检查。
 ```
 
 如果快照显示变量存在但 MCP 仍未注入，建议继续运行：

@@ -1,5 +1,5 @@
 interface:
-  display_name: "ZStack 源码查证"
+  display_name: "ZStackSupport:源码查证"
   short_description: "只读查询 ZStack 公开源码并解释机制"
   brand_color: "#2563EB"
   default_prompt: "输入类名、API、配置键、错误文本或日志关键词，查询源码机制。"

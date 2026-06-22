@@ -24,7 +24,7 @@ codex plugin marketplace add zopenb/zstack-support-agent-codex --ref main
 codex plugin add zstack-support@zstack-support-local
 ```
 
-安装后请重启 Codex，或打开一个新线程再运行 `zstack-support:连通检查`。
+安装后请重启 Codex，或打开一个新线程再运行 `ZStackSupport:连通检查`。
 
 ## 使用方式
 
@@ -35,13 +35,13 @@ codex plugin add zstack-support@zstack-support-local
 | 单点查证 | `这个 API 在源码里怎么走？` | 只查 GitHub 源码 |
 | 历史案例 | `有没有类似历史案例？` | 只查 BBS/Jira 等历史来源 |
 | 完整事件分析 | `升级后云主机迁移失败，帮我分析根因和下一步` | 输出完整 Intake、证据映射、多来源查证和闭环 |
-| 环境配置 | `zstack-support:环境配置 快照当前配置` | 只显示变量存在性、作用域和格式状态，不输出密钥值 |
-| 连通检查 | `zstack-support:连通检查` | 只读检查 GitHub、BBS、Tavily、Atlassian MCP |
+| 环境配置 | `ZStackSupport:环境配置 快照当前配置` | 只显示变量存在性、作用域和格式状态，不输出密钥值 |
+| 连通检查 | `ZStackSupport:连通检查` | 只读检查 GitHub、BBS、Tavily、Atlassian MCP |
 
 多轮追问建议继续带上技能名，例如：
 
 ```text
-zstack-support:事件分析 继续上一个问题，查一下这个修复有没有合到 4.8.x
+ZStackSupport:事件分析 继续上一个问题，查一下这个修复有没有合到 4.8.x
 ```
 
 Codex 的技能触发由宿主控制，普通追问不一定会自动重新加载插件技能；继续指定 `事件分析` 可以避免多轮会话掉出工作流。
@@ -111,18 +111,18 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 常用聊天命令：
 
 ```text
-zstack-support:环境配置 快照当前配置
-zstack-support:环境配置 帮我录入连接器变量
-zstack-support:环境配置 只补充缺失变量
+ZStackSupport:环境配置 快照当前配置
+ZStackSupport:环境配置 帮我录入连接器变量
+ZStackSupport:环境配置 只补充缺失变量
 ```
 
 使用建议：
 
-1. 先发 `zstack-support:环境配置 快照当前配置`，确认四个变量是否存在、作用域在哪里、格式是否正确。
-2. 如果缺变量，发 `zstack-support:环境配置 帮我录入连接器变量`。Codex 会打开一个可见 PowerShell 配置窗口，你在窗口里输入密钥；不要把密钥发到聊天里。
-3. 如果只想补缺失项，发 `zstack-support:环境配置 只补充缺失变量`，已有变量会保留。
+1. 先发 `ZStackSupport:环境配置 快照当前配置`，确认四个变量是否存在、作用域在哪里、格式是否正确。
+2. 如果缺变量，发 `ZStackSupport:环境配置 帮我录入连接器变量`。Codex 会打开一个可见 PowerShell 配置窗口，你在窗口里输入密钥；不要把密钥发到聊天里。
+3. 如果只想补缺失项，发 `ZStackSupport:环境配置 只补充缺失变量`，已有变量会保留。
 4. 窗口录入完成后，重启 Codex 或打开新线程。
-5. 再运行 `zstack-support:环境配置 快照当前配置` 和 `zstack-support:连通检查` 验证。
+5. 再运行 `ZStackSupport:环境配置 快照当前配置` 和 `ZStackSupport:连通检查` 验证。
 
 快照输出只包含变量名、是否存在、作用域、格式检查和修复建议。录入窗口会写入 Windows 用户变量，并尽量同步到当前进程；但 MCP 工具注入通常仍需要重启 Codex 或新开线程。
 
@@ -133,7 +133,7 @@ zstack-support:环境配置 只补充缺失变量
 推荐先用技能快照当前配置：
 
 ```text
-zstack-support:环境配置 快照当前配置
+ZStackSupport:环境配置 快照当前配置
 ```
 
 推荐方式：从仓库根目录打开可见 PowerShell 配置窗口，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
@@ -272,7 +272,7 @@ zstack_atlassian_shared
 然后运行：
 
 ```text
-zstack-support:连通检查
+ZStackSupport:连通检查
 ```
 
 ## 更新插件

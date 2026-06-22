@@ -14,10 +14,10 @@ ZStack Support Agent（源码级分析），基于证据优先方法论，结合
 
 | 命令 | 说明 |
 |------|------|
-| `@事件分析` | 粘贴事件描述/错误日志/截图，自动完成证据分析+源码查证+ZStack知识社区参考+外部 Web 参考+闭环决策 |
-| `@环境配置` | 快照或录入 GitHub、BBS、Tavily、Jira/Confluence 连接器变量，不输出密钥值 |
-| `@交接摘要` | 从当前分析结果生成渠道安全的交接文档 |
-| `@脱敏检查` | 检查文档是否包含敏感信息，确保可安全分享给客户 |
+| `@ZStackSupport:事件分析` | 粘贴事件描述/错误日志/截图，自动完成证据分析+源码查证+ZStack知识社区参考+外部 Web 参考+闭环决策 |
+| `@ZStackSupport:环境配置` | 快照或录入 GitHub、BBS、Tavily、Jira/Confluence 连接器变量，不输出密钥值 |
+| `@ZStackSupport:交接摘要` | 从当前分析结果生成渠道安全的交接文档 |
+| `@ZStackSupport:脱敏检查` | 检查文档是否包含敏感信息，确保可安全分享给客户 |
 
 ## 三种使用方式
 
@@ -33,7 +33,7 @@ ZStack Support Agent（源码级分析），基于证据优先方法论，结合
 多轮追问建议继续带上技能名，例如：
 
 ```text
-zstack-support:事件分析 继续上一个问题，查一下这个修复有没有合到 4.8.x
+ZStackSupport:事件分析 继续上一个问题，查一下这个修复有没有合到 4.8.x
 ```
 
 Codex 的技能触发由宿主控制，普通追问不一定会自动重新加载插件技能；继续指定 `事件分析` 可以避免多轮会话掉出工作流。
@@ -114,18 +114,18 @@ Atlassian 特别注意：`ATLASSIAN_AUTHORIZATION` 要填完整 Header 值，必
 常用聊天命令：
 
 ```text
-zstack-support:环境配置 快照当前配置
-zstack-support:环境配置 帮我录入连接器变量
-zstack-support:环境配置 只补充缺失变量
+ZStackSupport:环境配置 快照当前配置
+ZStackSupport:环境配置 帮我录入连接器变量
+ZStackSupport:环境配置 只补充缺失变量
 ```
 
 使用建议：
 
-1. 先发 `zstack-support:环境配置 快照当前配置`，确认四个变量是否存在、作用域在哪里、格式是否正确。
-2. 如果缺变量，发 `zstack-support:环境配置 帮我录入连接器变量`。Codex 会打开一个可见 PowerShell 配置窗口，你在窗口里输入密钥；不要把密钥发到聊天里。
-3. 如果只想补缺失项，发 `zstack-support:环境配置 只补充缺失变量`，已有变量会保留。
+1. 先发 `ZStackSupport:环境配置 快照当前配置`，确认四个变量是否存在、作用域在哪里、格式是否正确。
+2. 如果缺变量，发 `ZStackSupport:环境配置 帮我录入连接器变量`。Codex 会打开一个可见 PowerShell 配置窗口，你在窗口里输入密钥；不要把密钥发到聊天里。
+3. 如果只想补缺失项，发 `ZStackSupport:环境配置 只补充缺失变量`，已有变量会保留。
 4. 窗口录入完成后，重启 Codex 或打开新线程。
-5. 再运行 `zstack-support:环境配置 快照当前配置` 和 `zstack-support:连通检查` 验证。
+5. 再运行 `ZStackSupport:环境配置 快照当前配置` 和 `ZStackSupport:连通检查` 验证。
 
 快照输出只包含变量名、是否存在、作用域、格式检查和修复建议。录入窗口会写入 Windows 用户变量，并尽量同步到当前进程；但 MCP 工具注入通常仍需要重启 Codex 或新开线程。
 
@@ -136,7 +136,7 @@ zstack-support:环境配置 只补充缺失变量
 推荐先用技能快照当前配置：
 
 ```text
-zstack-support:环境配置 快照当前配置
+ZStackSupport:环境配置 快照当前配置
 ```
 
 推荐方式：从 marketplace 仓库根目录打开可见 PowerShell 配置窗口，一次录入四个变量。脚本只写入 Windows 用户变量，不打印密钥内容。
