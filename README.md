@@ -1,6 +1,6 @@
 # ZStack Support Agent Codex 插件市场
 
-这是 ZStack Support Agent（源码级分析）的 Codex 插件分发仓库。插件内置事件分析、源码查证、连通检查、变更方案、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，并通过 MCP 对接 GitHub、ZStack 知识社区(BBS)、Tavily、Jira/Confluence。
+这是 ZStack Support Agent（源码级分析）的 Codex 插件分发仓库。插件内置事件分析、源码查证、连通检查、变更方案、故障报告、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，并通过 MCP 对接 GitHub、ZStack 知识社区(BBS)、Tavily、Jira/Confluence。
 
 ## 安装方式
 
@@ -36,6 +36,7 @@ codex plugin add zstack-support@zstack-support-local
 | 历史案例 | `有没有类似历史案例？` | 只查 BBS/Jira 等历史来源 |
 | 完整事件分析 | `升级后云主机迁移失败，帮我分析根因和下一步` | 输出完整 Intake、证据映射、多来源查证和闭环 |
 | 变更方案 | `ZStackSupport:变更方案 基于上面的分析生成标准变更方案` | 复制并修改标准 Word 模板，输出 ZStack 运维变更方案 DOCX |
+| 故障报告 | `ZStackSupport:故障报告 基于上面的分析生成标准故障报告` | 复制并修改标准 Word 模板，输出 ZStack 企业版故障分析报告 DOCX |
 | 环境配置 | `ZStackSupport:环境配置 快照当前配置` | 只显示变量存在性、作用域和格式状态，不输出密钥值 |
 | 连通检查 | `ZStackSupport:连通检查` | 只读检查 GitHub、BBS、Tavily、Atlassian MCP |
 

@@ -1,0 +1,11 @@
+interface:
+  display_name: "ZStackSupport:故障报告"
+  short_description: "基于标准 DOCX 模板生成 ZStack 故障分析报告"
+  brand_color: "#2563EB"
+  default_prompt: "使用 $ZStackSupport:故障报告 根据事件分析结果生成标准 ZStack 企业版故障分析报告 DOCX。"
+
+dependencies:
+  tools: []
+
+policy:
+  allow_implicit_invocation: true

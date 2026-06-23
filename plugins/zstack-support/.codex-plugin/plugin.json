@@ -1,7 +1,7 @@
 {
   "name": "zstack-support",
   "version": "2.9.6+codex.20260622132500",
-  "description": "Evidence-first ZStack support workbench with GitHub-first source verification, support-event routing, connector environment setup snapshots, explicit subagent deep-dive templates, BBS/Jira historical tracking with clickable internal links, external web search, read-only Confluence reference, standard change proposal generation, and closure workflows.",
+  "description": "Evidence-first ZStack support workbench with GitHub-first source verification, support-event routing, connector environment setup snapshots, explicit subagent deep-dive templates, BBS/Jira historical tracking with clickable internal links, external web search, read-only Confluence reference, standard change proposal and fault report generation, and closure workflows.",
   "author": {
     "name": "ZStack Support Team"
   },
@@ -16,8 +16,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "ZStack Support Agent（源码级分析）",
-    "shortDescription": "ZStack 事件分析、源码查证、变更方案、环境配置与渠道安全闭环。",
-    "longDescription": "基于证据优先方法论的 ZStack 支持分析插件。内置事件分析、源码查证、变更方案、环境配置、MCP 连通检查、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，结合 GitHub、ZStack知识社区(BBS)、Tavily 与只读 Jira/Confluence MCP。源码/机制/调用链/代码定位必须先查 GitHub，Jira/BBS/Confluence 只能作为历史、内部跟踪或边界补充；变更方案基于公司标准 Word 模板修改生成，不从空白文档重造；面向公司内部同事时允许输出 BBS/Jira/Confluence 编号、标题摘要和可点击链接；普通事件分析由主 agent 查证汇总，只有用户显式要求多 agent / 并行深查时才进入 subagent 模板路径。",
+    "shortDescription": "ZStack 事件分析、源码查证、变更方案、故障报告与渠道安全闭环。",
+    "longDescription": "基于证据优先方法论的 ZStack 支持分析插件。内置事件分析、源码查证、变更方案、故障报告、环境配置、MCP 连通检查、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，结合 GitHub、ZStack知识社区(BBS)、Tavily 与只读 Jira/Confluence MCP。源码/机制/调用链/代码定位必须先查 GitHub，Jira/BBS/Confluence 只能作为历史、内部跟踪或边界补充；变更方案和故障报告基于公司标准 Word 模板修改生成，不从空白文档重造；面向公司内部同事时允许输出 BBS/Jira/Confluence 编号、标题摘要和可点击链接；普通事件分析由主 agent 查证汇总，只有用户显式要求多 agent / 并行深查时才进入 subagent 模板路径。",
     "developerName": "ZStack Support Team",
     "category": "Engineering",
     "capabilities": [
@@ -30,6 +30,7 @@
       "@ZStackSupport:事件分析 粘贴客户反馈、告警或错误日志；源码/机制类先查 GitHub，需要并行时请显式写“用多 agent 并行深查”",
       "@ZStackSupport:源码查证 查询类名、API、配置键或错误文本对应的源码机制",
       "@ZStackSupport:变更方案 根据事件分析结果和变更内容生成标准 ZStack 运维变更方案 DOCX",
+      "@ZStackSupport:故障报告 根据事件分析结果生成标准 ZStack 企业版故障分析报告 DOCX",
       "@ZStackSupport:环境配置 快照或录入 GitHub、BBS、Tavily、Jira/Confluence 连接器变量",
       "@ZStackSupport:脱敏检查 检查交接摘要是否适合渠道安全分享"
     ],
