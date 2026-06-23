@@ -4,20 +4,38 @@
 
 ## 安装方式
 
+建议先做本机依赖检查。脚本只输出组件状态、路径和格式判断，不打印 Token、Authorization 或 base64 明文。
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\check-local-dependencies.ps1
+```
+
+需要同时检查 MCP 远端 TCP 连通性时：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\check-local-dependencies.ps1 -CheckNetwork
+```
+
 从本仓库根目录执行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\install.ps1
 ```
 
-也可以手动安装：
+推荐使用安装脚本。脚本会优先选择 `%LOCALAPPDATA%\OpenAI\Codex\bin\*\codex.exe` 下的可执行入口，避免裸 `codex` 命令命中 WindowsApps 包路径后出现“拒绝访问”。如果诊断脚本报告可用 Codex 路径，也可以显式传入：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\install.ps1 -CodexExe "C:\path\to\codex.exe"
+```
+
+仅当本机 `codex` 命令可直接执行时，才手动安装：
 
 ```powershell
 codex plugin marketplace add .
 codex plugin add zstack-support@zstack-support-local
 ```
 
-从 GitHub 分发安装：
+从 GitHub 分发手动安装时也一样，先确认 `codex` 命令可执行：
 
 ```powershell
 codex plugin marketplace add zopenb/zstack-support-agent-codex --ref main
@@ -107,6 +125,20 @@ ATLASSIAN_AUTHORIZATION=Basic <base64>
 ```
 
 `ATLASSIAN_AUTHORIZATION` 必须包含 `Basic ` 前缀。旧环境如果还有 `ATLASSIAN_BASIC_AUTH=<base64>`，安装脚本会尝试迁移，但新安装只推荐使用 `ATLASSIAN_AUTHORIZATION`。
+
+如果诊断脚本提示旧变量仍存在，确认不再需要后可手动清理；不要把真实值粘贴到聊天或文档里：
+
+```powershell
+[Environment]::SetEnvironmentVariable('ATLASSIAN_BASIC_AUTH', $null, 'User')
+```
+
+## Word 模板生成依赖
+
+`变更方案` 和 `故障报告` 技能通过 Python 脚本把 AI 写好的结构化内容写入标准 Word 模板。脚本本身只依赖 Python 和 `python-docx`，不生成业务内容、不硬编码根因/风险/步骤。
+
+在 Codex Desktop 中优先使用 Codex bundled Python；如果系统 `python` 是 Windows Store alias，不代表技能不可用。只有脱离 Codex 在普通终端手工运行脚本时，才需要自行安装系统 Python 和 `python-docx`。
+
+LibreOffice/`soffice` 不是生成 DOCX 的硬依赖，只用于自动把 DOCX 渲染成 PDF/PNG 做视觉 QA。未安装 LibreOffice 时，应说明“DOCX 已生成，未完成自动视觉渲染 QA”，不要写成生成失败。若本机安装了 Microsoft Word，诊断脚本会报告 Word COM 可用性，供人工或后续自动化验证参考。
 
 ## 环境配置与 Windows 变量录入
 
@@ -261,6 +293,8 @@ find /usr/local/zstack /var/log/zstack -maxdepth 6 -type f \
 
 ## 验证安装
 
+如果裸 `codex` 命令不可执行，先运行 `check-local-dependencies.ps1` 查看可用 Codex 路径。
+
 ```powershell
 codex plugin list
 codex mcp list
@@ -296,7 +330,7 @@ codex plugin add zstack-support@zstack-support-local
 2.9.6+codex.local-YYYYMMDDHHMMSS
 ```
 
-然后重新执行安装脚本或 `codex plugin add zstack-support@zstack-support-local`。更新后请新开 Codex 线程测试，避免旧线程继续使用旧缓存。
+然后重新执行安装脚本，或在确认 `codex` 命令可执行后运行 `codex plugin add zstack-support@zstack-support-local`。更新后请新开 Codex 线程测试，避免旧线程继续使用旧缓存。
 
 ## 更多文档
 

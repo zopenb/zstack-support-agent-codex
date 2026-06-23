@@ -13,6 +13,27 @@ if ([string]::IsNullOrWhiteSpace($MarketplaceRoot)) {
     $MarketplaceRoot = Split-Path -Parent (Split-Path -Parent $pluginRoot)
 }
 
+function Test-CodexExecutable {
+    param([string]$Path)
+
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path -LiteralPath $Path)) {
+        return $false
+    }
+
+    try {
+        & $Path --version *> $null
+        return ($LASTEXITCODE -eq 0 -or $null -eq $LASTEXITCODE)
+    } catch {
+        if ($Path -match "\\WindowsApps\\") {
+            Write-Warning "Codex candidate is a WindowsApps package path but cannot be executed directly: $Path"
+            Write-Warning "Use the local Codex bin path under %LOCALAPPDATA%\OpenAI\Codex\bin or pass -CodexExe <path>."
+        } else {
+            Write-Warning "Codex candidate cannot be executed: $Path"
+        }
+        return $false
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($CodexExe)) {
     $candidates = @(
         (Join-Path $env:LOCALAPPDATA "OpenAI\Codex\bin\*\codex.exe"),
@@ -23,15 +44,17 @@ if ([string]::IsNullOrWhiteSpace($CodexExe)) {
         $resolved = Get-ChildItem -Path $candidate -ErrorAction SilentlyContinue |
             Sort-Object LastWriteTime -Descending |
             Select-Object -ExpandProperty FullName -First 1
-        if ($resolved -and (Test-Path -LiteralPath $resolved)) {
+        if ($resolved -and (Test-CodexExecutable $resolved)) {
             $CodexExe = $resolved
             break
         }
     }
+} elseif (-not (Test-CodexExecutable $CodexExe)) {
+    throw "codex.exe was found but cannot be executed: $CodexExe. Pass a usable -CodexExe <path>."
 }
 
 if ([string]::IsNullOrWhiteSpace($CodexExe) -or -not (Test-Path -LiteralPath $CodexExe)) {
-    throw "codex.exe was not found. Pass -CodexExe <path>."
+    throw "codex.exe was not found. Run scripts\check-local-dependencies.ps1 to locate a usable Codex executable, then pass -CodexExe <path>."
 }
 
 Write-Host "Codex executable: $CodexExe"

@@ -71,6 +71,7 @@ $eventAgent = Join-Path $eventDir "agents\openai.yaml"
 $sourceAgent = Join-Path $sourceDir "agents\openai.yaml"
 $template = Join-Path $eventDir "references\subagent-prompts.md"
 $snapshotScript = Join-Path $Root "scripts\snapshot-user-env.ps1"
+$dependencyScript = Join-Path $Root "scripts\check-local-dependencies.ps1"
 
 Assert-Contains $eventSkill ([regex]::Escape($sourceHard)) "event skill must keep GitHub-first source hard constraint"
 Assert-Contains $eventSkill ([regex]::Escape($firstGithub)) "event skill must require GitHub as first verification action"
@@ -87,6 +88,8 @@ foreach ($agentFile in @($eventAgent, $sourceAgent, $connectivityAgent, $envConf
     Assert-NotContains $agentFile 'display_name:\s*"ZStackSupport:ZStackSupport:' "skill display name should not duplicate the ZStackSupport prefix"
 }
 Assert-Contains $snapshotScript "Secret values are not printed" "environment snapshot must not print secret values"
+Assert-Contains $dependencyScript "Secret values are not printed" "local dependency check must not print secret values"
+Assert-Contains $dependencyScript "ATLASSIAN_BASIC_AUTH" "local dependency check must report legacy Atlassian variables"
 
 $scanRoots = @(
     (Join-Path $Root "README.md"),

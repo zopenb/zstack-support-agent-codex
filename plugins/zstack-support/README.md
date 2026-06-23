@@ -139,6 +139,27 @@ ZStackSupport:环境配置 只补充缺失变量
 
 如果你不通过聊天技能，也可以从 marketplace 仓库根目录手动打开同一个可见配置窗口。
 
+### 本机依赖检查
+
+从 marketplace 仓库根目录运行只读诊断脚本。脚本只输出组件状态、路径和格式判断，不打印 Token、Authorization 或 base64 明文。
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\check-local-dependencies.ps1
+```
+
+需要同时检查 MCP 远端 TCP 连通性时：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\check-local-dependencies.ps1 -CheckNetwork
+```
+
+诊断重点：
+
+- Codex CLI 优先使用 `%LOCALAPPDATA%\OpenAI\Codex\bin\*\codex.exe`；裸 `codex` 命令如果命中 WindowsApps 包路径并报“拒绝访问”，按诊断脚本给出的可用路径运行安装脚本的 `-CodexExe <path>`。
+- 系统 `python` 可能只是 Windows Store alias；在 Codex Desktop 中优先使用 bundled Python。只有普通终端手工运行 Word 模板脚本时，才需要系统 Python + `python-docx`。
+- LibreOffice/`soffice` 只用于自动 PDF/PNG 视觉 QA，不是生成 DOCX 的硬依赖。
+- 新环境只使用 `ATLASSIAN_AUTHORIZATION`；若旧变量 `ATLASSIAN_BASIC_AUTH` 仍存在，确认不再需要后手动清理。
+
 ### 手动录入环境变量
 
 推荐先用技能快照当前配置：
@@ -201,6 +222,12 @@ Windows 图形界面方式：
 powershell -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\install.ps1
 ```
 
+如果诊断脚本提示裸 `codex` 入口不可执行，但发现了可用 Codex 本地路径：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\plugins\zstack-support\scripts\install.ps1 -CodexExe "C:\path\to\codex.exe"
+```
+
 ### 不打印密钥的检查方式
 
 ```powershell
@@ -229,7 +256,7 @@ foreach ($name in $names) {
 
 1. 设置 Windows 用户或机器环境变量 `GITHUB_MCP_TOKEN`
 2. 重启 Codex 或打开新线程
-3. 运行 `codex mcp list`，确认 `github` 为 enabled
+3. 运行 `codex mcp list`，确认 `github` 为 enabled；如果裸 `codex` 命令不可执行，先运行本机依赖检查脚本定位可用 Codex 路径
 
 不要把真实 Token 写入 `.mcp.json` 或插件仓库。
 
@@ -245,6 +272,12 @@ foreach ($name in $names) {
 | **Atlassian** | 只读查询 Jira 工单和 Confluence 内部文档。Jira 用于已知缺陷、需求编号、修复状态、影响/修复版本；Confluence 用于内部说明、版本边界、操作规范、兼容性矩阵和产品口径 | 共享远端 MCP `zstack_atlassian_shared`；Windows 环境变量 `ATLASSIAN_AUTHORIZATION=Basic <base64(username:password)>` |
 
 > 不连接任何连接器也可正常使用。源码、ZStack知识社区、外部 Web 和 Atlassian 参考部分会标注“MCP 查询未完成”并跳过，分析基于当前案例证据进行。Tavily 和 Atlassian 结果只作为 E3 参考，不能替代当前客户证据，也不能单独闭环事件。
+
+## Word 模板生成依赖
+
+`变更方案` 和 `故障报告` 技能通过 Python 脚本把 AI 写好的结构化内容写入标准 Word 模板。脚本只做模板渲染，不生成业务内容、不硬编码根因、风险或步骤。
+
+在 Codex Desktop 中优先使用 Codex bundled Python；只有脱离 Codex 在普通终端手工运行脚本时，才需要系统 Python 和 `python-docx`。LibreOffice/`soffice` 不是生成 DOCX 的硬依赖，只用于自动把 DOCX 渲染成 PDF/PNG 做视觉 QA。未安装 LibreOffice 时，应说明“DOCX 已生成，未完成自动视觉渲染 QA”，不要写成生成失败。若本机安装了 Microsoft Word，诊断脚本会报告 Word COM 可用性，供人工或后续自动化验证参考。
 
 ## ZStack 日志路径基准
 

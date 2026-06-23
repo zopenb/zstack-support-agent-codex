@@ -11,20 +11,21 @@ description: Generate a ZStack enterprise fault analysis report DOCX by editing 
 
 1. 先基于事件分析结果、当前证据、客户确认信息和恢复结果补全报告内容。AI 负责判断和撰写，脚本只负责把内容写进模板。
 2. 若缺少故障时间、恢复时间、影响范围、处理过程、原因分析、改进措施或证据边界，只补问最小必要信息；不要让脚本编造。
-3. 可先导出模板结构，确认可填字段：
+3. 选择 Python：优先使用 Codex Desktop 提供的 bundled Python；只有在普通终端手工运行时，才要求系统 Python 已安装 `python-docx`。不要因为系统 `python` 是 Windows Store alias 就判定技能不可用。
+4. 可先导出模板结构，确认可填字段：
 
 ```powershell
-python scripts/generate_fault_report.py --print-template
+<python.exe> scripts/generate_fault_report.py --print-template
 ```
 
-4. 将报告内容整理为 JSON，字段参考 [输入结构](references/input-schema.md)。
-5. 使用脚本生成 DOCX：
+5. 将报告内容整理为 JSON，字段参考 [输入结构](references/input-schema.md)。
+6. 使用脚本生成 DOCX：
 
 ```powershell
-python scripts/generate_fault_report.py input.json --out output.docx
+<python.exe> scripts/generate_fault_report.py input.json --out output.docx
 ```
 
-6. 若当前任务需要交付 DOCX，按文档技能的规则渲染并检查页面 PNG；发现版式问题后修改并重新渲染。若 LibreOffice 不可用，说明未完成视觉渲染验证。
+7. 若当前任务需要交付 DOCX，按文档技能的规则渲染并检查页面 PNG；发现版式问题后修改并重新渲染。LibreOffice/`soffice` 只用于自动 PDF/PNG 视觉 QA，不是生成 DOCX 的硬依赖；若不可用，说明“DOCX 已生成，未完成自动视觉渲染 QA”，不要暗示生成失败。
 
 ## 报告边界
 
@@ -51,4 +52,4 @@ python scripts/generate_fault_report.py input.json --out output.docx
 - 按 JSON 写入模板并统一主题字体、1.5 倍行距、重点加粗。
 - 不生成业务内容、不补默认根因、不补默认整改措施。
 
-输入字段参考 [输入结构](references/input-schema.md)。使用仓库或 Codex 工作区提供的 Python 运行脚本；不要把脚本改成依赖本机全局包的流程。
+输入字段参考 [输入结构](references/input-schema.md)。使用 Codex 工作区提供的 Python 运行脚本；在脱离 Codex 的终端手工运行时，才使用本机 Python + `python-docx`。不要把脚本改成依赖本机全局包的流程。
