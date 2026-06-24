@@ -31,7 +31,8 @@ $pluginJson = Read-Text $pluginJsonPath | ConvertFrom-Json
 
 $defaultCn = U @(0x9ed8,0x8ba4)
 $autoStartCn = U @(0x81ea,0x52a8,0x542f,0x52a8)
-$sourceHard = U @(0x6e90,0x7801,0x4f18,0x5148,0x786c,0x7ea6,0x675f)
+$sameIncidentFirst = U @(0x5386,0x53f2,0x76f8,0x540c,0x6545,0x969c,0x4f18,0x5148,0x68c0,0x7d22)
+$sourceHard = U @(0x6e90,0x7801,0x786c,0x7ea6,0x675f)
 $firstGithub = (U @(0x9996,0x4e2a,0x67e5,0x8bc1,0x52a8,0x4f5c,0x5fc5,0x987b,0x662f)) + " GitHub"
 $githubIncomplete = "GitHub " + (U @(0x6e90,0x7801,0x67e5,0x8bc1,0x672a,0x5b8c,0x6210))
 $explicitOnly = U @(0x53ea,0x6709,0x7528,0x6237,0x660e,0x786e,0x8981,0x6c42)
@@ -73,8 +74,8 @@ $template = Join-Path $eventDir "references\subagent-prompts.md"
 $snapshotScript = Join-Path $Root "scripts\snapshot-user-env.ps1"
 $dependencyScript = Join-Path $Root "scripts\check-local-dependencies.ps1"
 
-Assert-Contains $eventSkill ([regex]::Escape($sourceHard)) "event skill must keep GitHub-first source hard constraint"
-Assert-Contains $eventSkill ([regex]::Escape($firstGithub)) "event skill must require GitHub as first verification action"
+Assert-Contains $eventSkill ([regex]::Escape($sameIncidentFirst)) "event skill must keep same-incident-first support workflow"
+Assert-Contains $eventSkill ([regex]::Escape($sourceHard)) "event skill must keep GitHub source hard constraint"
 Assert-Contains $eventSkill ([regex]::Escape($githubIncomplete)) "event skill must define GitHub incomplete status"
 Assert-Contains $sourceSkill ([regex]::Escape($firstGithub)) "source skill must require GitHub as first verification action"
 Assert-Contains $template ([regex]::Escape($explicitOnly)) "subagent template must require explicit user request"
