@@ -2,7 +2,7 @@ interface:
   display_name: "ZStackSupport:事件分析"
   short_description: "具体 ZStack 支持事件按证据路由主动查证"
   brand_color: "#2563EB"
-  default_prompt: "粘贴客户反馈、错误日志或截图转写；先查历史相同故障，必要时做 GitHub 源码诊断。"
+  default_prompt: "粘贴客户反馈、错误日志或截图转写；先查 BBS/Jira/Confluence 内部知识系统，必要时做 GitHub 源码诊断。"
 
 dependencies:
   tools:

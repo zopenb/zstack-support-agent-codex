@@ -1,6 +1,6 @@
 # ZStack Support Agent Codex 插件市场
 
-这是 ZStack Support Agent（源码级分析）的 Codex 插件分发仓库。插件内置事件分析、源码查证、连通检查、变更方案、故障报告、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，并通过 MCP 对接 GitHub、ZStack 知识社区(BBS)、Tavily、Jira/Confluence。
+这是 ZStack Support Agent（支持分析）的 Codex 插件分发仓库。插件内置事件分析、源码查证、连通检查、变更方案、故障报告、交接摘要、脱敏检查和 ZStack Support Knowledge 知识库，并通过 MCP 对接 ZStack 知识社区(BBS)、Jira/Confluence、GitHub 和 Tavily。
 
 ## 安装方式
 
@@ -49,7 +49,7 @@ codex plugin add zstack-support@zstack-support-local
 | 用法 | 示例 | 预期行为 |
 |------|------|----------|
 | 直接问 | `L3 网络是什么？` | 直接中文回答，不查 MCP |
-| 具体支持事件 | `客户升级后云主机迁移失败，日志如下...` | 先按问题性质路由：源码/机制类必须先查 GitHub；历史相似查 BBS；已知缺陷/版本跟踪查 Jira；版本边界/标准口径查 Confluence；OS/厂商问题查 Tavily；需要并行时请显式要求“用多 agent 并行深查” |
+| 具体支持事件 | `客户升级后云主机迁移失败，日志如下...` | 当前客户证据优先，先把 BBS/Jira/Confluence 作为内部知识系统整体查证；三者都查不到高度相同问题、相似度不足、来源冲突或涉及机制解释时进入 GitHub 源码诊断；涉及源码、调用链、字段下发、版本合入、修复确认时必须查 GitHub；需要并行时请显式要求“用多 agent 并行深查” |
 | 单点查证 | `这个 API 在源码里怎么走？` | 只查 GitHub 源码 |
 | 历史案例 | `有没有类似历史案例？` | 只查 BBS/Jira 等历史来源 |
 | 完整事件分析 | `升级后云主机迁移失败，帮我分析根因和下一步` | 输出完整 Intake、证据映射、多来源查证和闭环 |
